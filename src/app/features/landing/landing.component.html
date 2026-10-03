@@ -1,0 +1,120 @@
+<main class="text-netrust-ink">
+  <section class="relative isolate min-h-[620px] overflow-hidden bg-[#173a2c] sm:min-h-[680px]">
+    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=85" alt="Community members sitting together" class="absolute inset-0 -z-20 h-full w-full object-cover" />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-[#123528]/90 via-[#123528]/65 to-[#123528]/15"></div>
+    <div class="mx-auto flex min-h-[620px] w-full max-w-[1160px] flex-col justify-center px-6 py-14 sm:min-h-[680px] sm:px-8">
+      <p class="text-[10px] font-extrabold tracking-[0.17em] text-[#d7f36a] sm:text-xs">NETRUFY · YOUR COMMUNITY, CONNECTED</p>
+      <h1 class="mt-4 max-w-3xl font-display text-5xl font-normal leading-[1.06] text-white sm:text-6xl lg:text-7xl">People you know.<br />Skills you need.</h1>
+      <p class="mt-5 max-w-xl text-sm leading-6 text-white/85 sm:text-base sm:leading-7">Discover professionals, services, and opportunities already connected to your community. Search before you sign in.</p>
+
+      <form class="mt-8 !flex !h-14 !min-h-14 !w-full !max-w-2xl !flex-row !flex-nowrap !items-center !gap-3 !rounded-md !bg-white !p-2 !pl-4 !shadow-xl" (ngSubmit)="search()">
+        <svg class="h-5 w-5 shrink-0 text-netrust-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+        <input class="!h-auto !min-h-0 !w-0 !min-w-0 !flex-1 !border-0 !bg-transparent !p-0 !text-sm !text-netrust-ink !shadow-none !outline-none focus:!ring-0" type="search" name="query" [(ngModel)]="query" placeholder="Search a profession, skill, service or person" aria-label="Search your community" />
+        <button class="!min-h-10 !w-auto !shrink-0 !rounded-sm !px-4 !py-2 !text-xs" type="submit">Search</button>
+      </form>
+
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-white/80">
+        <span class="mr-1">Try:</span>
+        <a routerLink="/directory" [queryParams]="{ q: 'Doctor' }" class="rounded-sm border border-white/35 px-2.5 py-1.5 text-white no-underline hover:bg-white/10">Doctor</a>
+        <a routerLink="/directory" [queryParams]="{ q: 'Photographer' }" class="rounded-sm border border-white/35 px-2.5 py-1.5 text-white no-underline hover:bg-white/10">Photographer</a>
+        <a routerLink="/directory" [queryParams]="{ q: 'Web development' }" class="rounded-sm border border-white/35 px-2.5 py-1.5 text-white no-underline hover:bg-white/10">Web development</a>
+      </div>
+      <a routerLink="/apply" class="mt-8 w-fit text-sm font-bold text-[#d7f36a] no-underline hover:underline">Apply to join your community <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="mx-auto grid w-full max-w-[1160px] gap-8 px-6 py-12 sm:px-8 md:grid-cols-[0.8fr_1.2fr] md:py-16">
+    <div>
+      <p class="text-[10px] font-extrabold tracking-[0.15em] text-netrust-coral">A NETWORK BUILT ON REAL CONNECTIONS</p>
+      <h2 class="mt-2 max-w-md font-display text-3xl leading-tight">Your community already has the talent.</h2>
+      <p class="mt-3 max-w-md text-sm leading-6 text-netrust-muted">Netrufy helps make those people and skills easier to find, with Unit and Homecell membership shown as community context.</p>
+    </div>
+    <div class="grid gap-px border border-netrust-line bg-netrust-line sm:grid-cols-3">
+      <div class="bg-white p-5">
+        <span class="text-[10px] font-extrabold tracking-wider text-netrust-blue">01</span>
+        <h3 class="mt-3 text-sm font-extrabold">Discover</h3>
+        <p class="mt-1 text-xs leading-5 text-netrust-muted">Search people, professions, skills, and services without an account.</p>
+      </div>
+      <div class="bg-white p-5">
+        <span class="text-[10px] font-extrabold tracking-wider text-netrust-blue">02</span>
+        <h3 class="mt-3 text-sm font-extrabold">Understand</h3>
+        <p class="mt-1 text-xs leading-5 text-netrust-muted">See the Unit and Homecell affiliations members choose to make public.</p>
+      </div>
+      <div class="bg-white p-5">
+        <span class="text-[10px] font-extrabold tracking-wider text-netrust-blue">03</span>
+        <h3 class="mt-3 text-sm font-extrabold">Connect</h3>
+        <p class="mt-1 text-xs leading-5 text-netrust-muted">Apply to join through a Unit leader, then contact members who share their details.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-netrust-line bg-white">
+    <div class="mx-auto w-full max-w-[1160px] px-6 py-12 sm:px-8 sm:py-14">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="text-[10px] font-extrabold tracking-[0.15em] text-netrust-blue">START WITH WHAT YOU NEED</p>
+          <h2 class="mt-2 font-display text-3xl">Explore your network</h2>
+        </div>
+        <a routerLink="/directory" class="text-sm font-bold text-netrust-green no-underline hover:underline">Browse everyone <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="mt-7 grid divide-y divide-netrust-line border-y border-netrust-line sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+        <a routerLink="/directory" [queryParams]="{ q: 'Professional' }" class="group py-5 no-underline sm:px-5 sm:first:pl-0">
+          <span class="text-[10px] font-extrabold tracking-wider text-netrust-coral">01 / PEOPLE</span>
+          <h3 class="mt-2 text-base font-extrabold text-netrust-ink group-hover:text-netrust-green">Find a person</h3>
+          <p class="mt-1 text-xs leading-5 text-netrust-muted">Look up professionals already connected to your community.</p>
+        </a>
+        <a routerLink="/directory" [queryParams]="{ q: 'Design' }" class="group py-5 no-underline sm:px-5">
+          <span class="text-[10px] font-extrabold tracking-wider text-netrust-coral">02 / SKILLS</span>
+          <h3 class="mt-2 text-base font-extrabold text-netrust-ink group-hover:text-netrust-green">Search a skill</h3>
+          <p class="mt-1 text-xs leading-5 text-netrust-muted">Discover what members know and the work they can do.</p>
+        </a>
+        <a routerLink="/directory" [queryParams]="{ q: 'Service' }" class="group py-5 no-underline sm:px-5">
+          <span class="text-[10px] font-extrabold tracking-wider text-netrust-coral">03 / SERVICES</span>
+          <h3 class="mt-2 text-base font-extrabold text-netrust-ink group-hover:text-netrust-green">Find a service</h3>
+          <p class="mt-1 text-xs leading-5 text-netrust-muted">Connect with providers who have chosen to list their services.</p>
+        </a>
+        <a routerLink="/apply" class="group py-5 no-underline sm:px-5 sm:last:pr-0">
+          <span class="text-[10px] font-extrabold tracking-wider text-netrust-coral">04 / MEMBERSHIP</span>
+          <h3 class="mt-2 text-base font-extrabold text-netrust-ink group-hover:text-netrust-green">Join a Unit</h3>
+          <p class="mt-1 text-xs leading-5 text-netrust-muted">Apply to your community. A Unit leader reviews every application.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-[#173a2c] text-white">
+    <div class="mx-auto grid w-full max-w-[1160px] gap-8 px-6 py-12 sm:px-8 sm:py-16 md:grid-cols-[1fr_auto] md:items-center">
+      <div class="max-w-2xl">
+        <p class="text-[10px] font-extrabold tracking-[0.15em] text-[#d7f36a]">BECOME PART OF THE NETWORK</p>
+        <h2 class="mt-2 font-display text-3xl leading-tight sm:text-4xl">Membership starts with the group you belong to.</h2>
+        <p class="mt-3 max-w-xl text-sm leading-6 text-white/75">Choose your Unit and introduce yourself. Its leader reviews your application before you become a member.</p>
+      </div>
+      <a routerLink="/apply" class="inline-flex min-h-12 w-fit items-center justify-center gap-3 bg-[#d7f36a] px-5 text-sm font-extrabold text-[#173a2c] no-underline hover:bg-white">Apply to join <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="mx-auto grid w-full max-w-[1160px] gap-5 px-6 py-12 sm:px-8 sm:py-14 md:grid-cols-[0.75fr_1.25fr] md:items-start">
+    <div>
+      <p class="text-[10px] font-extrabold tracking-[0.15em] text-netrust-coral">CLEAR CONTEXT, NOT GUARANTEES</p>
+      <h2 class="mt-2 font-display text-3xl">Trust should be visible—and specific.</h2>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <p class="text-sm leading-6 text-netrust-muted"><strong class="text-netrust-ink">Unit or Homecell confirmation</strong> shows a member’s connection to that group. It does not certify professional qualifications or promise service quality.</p>
+      <p class="text-sm leading-6 text-netrust-muted"><strong class="text-netrust-ink">Public profile details</strong> appear only when members opt in and choose which fields anyone can see. Phone and private information stay protected.</p>
+    </div>
+  </section>
+
+  <footer class="border-t border-netrust-line bg-white">
+    <div class="mx-auto flex w-full max-w-[1160px] flex-col gap-6 px-6 py-7 sm:px-8 md:flex-row md:items-center md:justify-between">
+      <a routerLink="/" class="flex w-fit items-center gap-2 text-sm font-extrabold text-netrust-green no-underline">
+        <span class="grid h-8 w-8 place-items-center rounded-[10px_10px_10px_3px] bg-netrust-green font-display text-lg text-white" aria-hidden="true">N</span>Netrufy
+      </a>
+      <nav aria-label="Footer navigation" class="flex flex-wrap gap-x-6 gap-y-3 text-xs font-semibold text-netrust-muted">
+        <a routerLink="/directory" class="text-inherit no-underline hover:text-netrust-green">Search directory</a>
+        <a routerLink="/apply" class="text-inherit no-underline hover:text-netrust-green">Apply to join</a>
+        <a routerLink="/login" class="text-inherit no-underline hover:text-netrust-green">Member sign in</a>
+      </nav>
+      <p class="m-0 text-[11px] text-netrust-muted">Community connections, made searchable.</p>
+    </div>
+  </footer>
+</main>

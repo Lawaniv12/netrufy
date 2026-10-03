@@ -1,0 +1,61 @@
+<main class="auth-card">
+  @if (inviteValid() === null) {
+    <h1>Checking your invitation…</h1>
+  } @else if (!inviteValid()) {
+    <h1>This invitation isn’t available</h1>
+    <p>It may have expired or already been used. Ask your community administrator for a new invitation link.</p>
+    <a routerLink="/login">Sign in</a>
+  } @else {
+  <h1>Join {{ communityName() || 'your community' }}</h1>
+  @if (groupName()) { <p class="muted">You were invited to {{ groupName() }}.</p> }
+
+  @if (!isAuthed) {
+    @if (awaitingConfirmation()) {
+      <p>Check your email to confirm your account. The link will bring you back here to finish joining.</p>
+      <p class="muted">We’ll keep your name and phone number with this invitation.</p>
+    } @else {
+      <p>Create an account with this invitation. You’ll use your email and password to sign in later.</p>
+      <form (ngSubmit)="createAccount()">
+        <label>
+          Full name
+          <input name="fullName" [(ngModel)]="fullName" autocomplete="name" required />
+        </label>
+        <label>
+          Phone number
+          <input name="phone" type="tel" [(ngModel)]="phone" autocomplete="tel" placeholder="0801 234 5678" required />
+        </label>
+        <label>
+          Email address
+          <input name="email" type="email" [(ngModel)]="email" [readonly]="!!approvedEmail()" autocomplete="email" required />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" [(ngModel)]="password" minlength="8" autocomplete="new-password" required />
+        </label>
+        <label>
+          Confirm password
+          <input name="confirmPassword" type="password" [(ngModel)]="confirmPassword" minlength="8" autocomplete="new-password" required />
+        </label>
+        <button type="submit" [disabled]="busy()">{{ busy() ? 'Creating account…' : 'Create account' }}</button>
+      </form>
+      <p class="muted">Already have an account? <a [routerLink]="['/login']" [queryParams]="{ returnTo: '/invite/' + token }">Sign in</a></p>
+    }
+  } @else {
+    <form (ngSubmit)="redeem()">
+      <label>
+        Full name
+        <input name="fullName" [(ngModel)]="fullName" required />
+      </label>
+      <label>
+        Phone number (shared with community members when you choose to be contacted)
+        <input name="phone" [(ngModel)]="phone" placeholder="0801 234 5678" required />
+      </label>
+      <button type="submit" [disabled]="busy()">{{ busy() ? 'Joining…' : 'Complete setup' }}</button>
+    </form>
+  }
+
+  @if (error()) {
+    <p role="alert" class="error">{{ error() }}</p>
+  }
+  }
+</main>

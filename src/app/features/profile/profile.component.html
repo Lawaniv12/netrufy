@@ -1,0 +1,111 @@
+<main class="mx-auto min-h-screen w-full max-w-[1160px] px-5 py-8 text-netrust-ink sm:px-6 sm:py-10">
+  @if (!profile()) {
+    <p class="py-10 text-sm text-netrust-muted">Loading your profile…</p>
+  } @else {
+    <header class="mb-6 flex flex-wrap items-center gap-4 border-b border-netrust-line pb-6">
+      @if (profile()!.photo_url) {
+        <img class="h-16 w-16 rounded-full border border-netrust-line object-cover" [src]="profile()!.photo_url!" alt="Your profile photo" />
+      } @else {
+        <span class="grid h-16 w-16 place-items-center rounded-full bg-emerald-50 font-display text-xl text-netrust-green">{{ profile()!.full_name.slice(0, 1) }}</span>
+      }
+      <div class="min-w-0 flex-1">
+        <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-blue">MEMBER PROFILE</p>
+        <h1 class="mt-1 truncate font-display text-3xl">{{ profile()!.full_name }}</h1>
+        <p class="mt-1 text-xs text-netrust-muted">Manage your details, privacy, and links.</p>
+      </div>
+      @if (savedAt()) { <span class="text-xs font-semibold text-emerald-800">Saved</span> }
+    </header>
+
+    <nav class="mb-6 flex gap-1 border-b border-netrust-line" aria-label="Profile settings">
+      <button type="button" (click)="activeTab.set('details')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'details'" [class.!bg-transparent]="activeTab() !== 'details'" [class.!text-netrust-muted]="activeTab() !== 'details'">Details</button>
+      <button type="button" (click)="activeTab.set('privacy')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'privacy'" [class.!bg-transparent]="activeTab() !== 'privacy'" [class.!text-netrust-muted]="activeTab() !== 'privacy'">Privacy</button>
+      <button type="button" (click)="activeTab.set('links')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'links'" [class.!bg-transparent]="activeTab() !== 'links'" [class.!text-netrust-muted]="activeTab() !== 'links'">Links <span class="ml-1 text-xs">{{ links().length }}</span></button>
+    </nav>
+
+    @if (activeTab() === 'details') {
+      <section class="max-w-3xl" aria-labelledby="details-heading">
+        <div class="mb-5"><h2 id="details-heading" class="font-display text-2xl">Profile details</h2><p class="mt-1 text-sm text-netrust-muted">Share the information people need to recognize what you do.</p></div>
+        <form (ngSubmit)="save()" class="grid gap-4 sm:grid-cols-2">
+          <label class="flex flex-col gap-1.5 text-xs font-bold sm:col-span-2">Profile photo
+            <span class="font-normal text-netrust-muted">Only upload after opting into public listing and setting Photo visibility to Anyone. JPEG, PNG or WebP; compressed to 100 KB.</span>
+            <input class="text-xs" name="photo" type="file" accept="image/jpeg,image/png,image/webp" (change)="uploadProfilePhoto($event)" [disabled]="photoBusy()" />
+            @if (photoBusy()) { <span class="font-normal text-netrust-muted">Compressing and uploading…</span> }
+            @if (photoError()) { <span role="alert" class="font-normal text-red-700">{{ photoError() }}</span> }
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Full name
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="full_name" [(ngModel)]="profile()!.full_name" required />
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Professional headline
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="headline" [(ngModel)]="profile()!.headline" placeholder="e.g. Frontend developer" />
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold sm:col-span-2">About you
+            <textarea class="border border-netrust-line px-3 py-2 text-sm font-normal" name="bio" rows="4" [(ngModel)]="profile()!.bio"></textarea>
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Skills <span class="font-normal text-netrust-muted">Comma separated</span>
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="skills" [(ngModel)]="skillsText" placeholder="Angular, TypeScript, design" />
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Services offered <span class="font-normal text-netrust-muted">Comma separated</span>
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="services" [(ngModel)]="servicesText" placeholder="Web development, consulting" />
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Location
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="location" [(ngModel)]="profile()!.location" />
+          </label>
+          <label class="setting-toggle self-end pb-3 text-xs font-semibold"><input type="checkbox" name="open_to_work" [(ngModel)]="profile()!.open_to_work" /><span>Open to work</span></label>
+          <div class="flex flex-wrap items-center gap-4 border-t border-netrust-line pt-4 sm:col-span-2">
+            <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save profile details' }}</button>
+            @if (error()) { <p role="alert" class="text-sm text-red-700">{{ error() }}</p> }
+          </div>
+        </form>
+      </section>
+    } @else if (activeTab() === 'privacy') {
+      <section class="max-w-3xl" aria-labelledby="privacy-heading">
+        <div class="mb-5"><h2 id="privacy-heading" class="font-display text-2xl">Privacy and visibility</h2><p class="mt-1 text-sm text-netrust-muted">Public listing is off by default. Choose which fields strangers can see.</p></div>
+        <label class="setting-toggle mb-5 border border-netrust-line bg-white p-4 text-sm">
+          <input type="checkbox" name="public_listing" [(ngModel)]="profile()!.public_listing" />
+          <span><strong>Show my profile in public search</strong><span class="mt-1 block text-xs font-normal text-netrust-muted">Your profile appears to signed-out visitors only when enabled. Each field below still has its own audience.</span></span>
+        </label>
+        <div class="divide-y divide-netrust-line border-y border-netrust-line bg-white">
+          @for (field of fields; track field.key) {
+            <label class="grid items-center gap-2 px-4 py-3 sm:grid-cols-[1fr_240px]">
+              <span class="text-sm font-semibold">{{ field.label }}</span>
+              <select [name]="'visibility-' + field.key" [ngModel]="visibilityFor(field.key)" (ngModelChange)="setVisibility(field.key, $event)" class="min-h-10 border border-netrust-line bg-white px-3 text-xs">
+                <option value="private">Only me</option>
+                <option value="community">Community members</option>
+                <option value="viewers">Members + invited viewers</option>
+                <option value="public">Anyone</option>
+              </select>
+            </label>
+          }
+        </div>
+        <div class="mt-5 flex flex-wrap items-center gap-4">
+          <button type="button" (click)="save()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save privacy settings' }}</button>
+          @if (error()) { <p role="alert" class="text-sm text-red-700">{{ error() }}</p> }
+        </div>
+      </section>
+    } @else {
+      <section class="max-w-3xl" aria-labelledby="links-heading">
+        <div class="mb-5"><h2 id="links-heading" class="font-display text-2xl">Portfolio and social links</h2><p class="mt-1 text-sm text-netrust-muted">These follow the audience you choose for “Portfolio links” in Privacy.</p></div>
+        @if (links().length) {
+          <ul class="mb-6 divide-y divide-netrust-line border-y border-netrust-line p-0">
+            @for (link of links(); track link.id) {
+              <li class="flex items-center gap-3 py-3">
+                <a [href]="link.url" target="_blank" rel="noopener noreferrer" class="min-w-0 flex-1 truncate text-sm font-semibold text-netrust-green hover:underline">{{ linkLabel(link.kind) }} <span class="font-normal text-netrust-muted">· {{ link.url }}</span></a>
+                <button type="button" (click)="removeLink(link.id)" class="!min-h-8 !w-auto !border-0 !bg-transparent !px-2 !py-1 text-xs !text-red-700 !shadow-none">Remove</button>
+              </li>
+            }
+          </ul>
+        } @else { <p class="border-y border-netrust-line py-5 text-sm text-netrust-muted">No links added yet.</p> }
+        <form (ngSubmit)="addLink()" class="grid gap-4 sm:grid-cols-[180px_1fr_auto] sm:items-end">
+          <label class="flex flex-col gap-1.5 text-xs font-bold">Type
+            <select name="linkKind" [(ngModel)]="linkKind" class="min-h-11 border border-netrust-line bg-white px-3 text-sm font-normal"><option value="portfolio">Portfolio</option><option value="linkedin">LinkedIn</option><option value="github">GitHub</option><option value="website">Website</option><option value="other">Other</option></select>
+          </label>
+          <label class="flex flex-col gap-1.5 text-xs font-bold">URL
+            <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="linkUrl" type="url" [(ngModel)]="linkUrl" placeholder="https://example.com/your-work" required />
+          </label>
+          <button type="submit" [disabled]="linksBusy()">{{ linksBusy() ? 'Adding…' : 'Add link' }}</button>
+        </form>
+        @if (linksError()) { <p role="alert" class="mt-3 text-sm text-red-700">{{ linksError() }}</p> }
+      </section>
+    }
+  }
+</main>

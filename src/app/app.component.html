@@ -1,0 +1,32 @@
+@if (!isLoginPage()) {
+  <header class="topbar">
+    <nav class="topbar-inner" aria-label="Main navigation">
+      <a routerLink="/directory" class="brand" aria-label="Netrufy home">
+        <span class="brand-mark bg-netrust-green font-display text-white" aria-hidden="true">N</span>
+        <span><strong>Netrufy</strong></span>
+      </a>
+      @if (supabase.isAuthed()) {
+        <button type="button" class="menu-toggle" [attr.aria-expanded]="mobileMenuOpen()" aria-controls="mobile-menu" [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'" (click)="toggleMobileMenu()">
+          <span></span><span></span><span></span>
+        </button>
+        <div id="mobile-menu" class="nav-links" [class.mobile-open]="mobileMenuOpen()" (keydown.escape)="closeMobileMenu()">
+          <a routerLink="/directory" routerLinkActive="active" (click)="closeMobileMenu()">Directory</a>
+          <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My profile</a>
+          <a routerLink="/trust" routerLinkActive="active" (click)="closeMobileMenu()">Trust</a>
+          <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>
+          @if (supabase.profile()?.role === 'community_admin' || supabase.profile()?.role === 'platform_admin') {
+            <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
+          }
+          <button class="sign-out" (click)="signOut()">Sign out</button>
+        </div>
+      } @else {
+        <div class="signed-out-links">
+          <a routerLink="/apply">Join your community</a>
+          <a class="sign-in-link" routerLink="/login">Sign in <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      }
+    </nav>
+  </header>
+}
+
+<router-outlet />

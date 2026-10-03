@@ -1,0 +1,76 @@
+<main class="min-h-screen bg-netrust-paper px-4 py-10 text-netrust-ink sm:px-6">
+  <section class="mx-auto grid w-full max-w-5xl overflow-hidden border border-netrust-line bg-white md:grid-cols-[0.85fr_1.15fr]">
+    <aside class="bg-[#173a2c] p-7 text-white sm:p-10">
+      <a routerLink="/directory" class="text-sm font-extrabold text-white no-underline">Netrufy</a>
+      <p class="mt-14 text-[10px] font-extrabold tracking-[0.16em] text-[#d7f36a]">JOIN YOUR COMMUNITY</p>
+      <h1 class="mt-3 font-display text-4xl leading-tight">Bring your skills into view.</h1>
+      <p class="mt-4 text-sm leading-6 text-white/75">A Unit leader reviews each application before membership is granted. Public profile visibility is your choice.</p>
+      <a routerLink="/login" class="mt-7 inline-block text-xs font-bold text-[#d7f36a]">Already a member? Sign in →</a>
+    </aside>
+
+    <div class="p-6 sm:p-10">
+      @if (submitted()) {
+        <div class="py-10">
+          <span class="grid h-12 w-12 place-items-center rounded-full bg-emerald-50 text-xl font-bold text-emerald-800" aria-hidden="true">✓</span>
+          <h2 class="mt-5 font-display text-3xl">Application received</h2>
+          <p class="mt-3 max-w-lg text-sm leading-6 text-netrust-muted">Your selected Unit’s administrator will review your details. If approved, you’ll receive an email invitation to create your account.</p>
+          <a routerLink="/directory" class="mt-6 inline-block text-sm font-bold text-netrust-green">Explore public profiles →</a>
+        </div>
+      } @else {
+        <p class="text-[10px] font-extrabold tracking-[0.15em] text-netrust-blue">MEMBERSHIP APPLICATION</p>
+        <h2 class="mt-2 font-display text-3xl">Tell us about yourself</h2>
+        <p class="mt-2 text-sm text-netrust-muted">Your Unit administrator reviews this before you become a member.</p>
+
+        @if (loading()) {
+          <p class="mt-8 text-sm text-netrust-muted">Loading communities…</p>
+        } @else if (!units().length) {
+          <p class="mt-8 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">There are no Units accepting applications yet. Please check back later.</p>
+        } @else {
+          <form class="mt-7 flex flex-col gap-4" (ngSubmit)="submit()">
+            <label class="flex flex-col gap-1.5 text-xs font-bold">Full name
+              <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="fullName" [(ngModel)]="fullName" autocomplete="name" required />
+            </label>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="flex flex-col gap-1.5 text-xs font-bold">Email
+                <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="email" type="email" [(ngModel)]="email" autocomplete="email" required />
+              </label>
+              <label class="flex flex-col gap-1.5 text-xs font-bold">Phone
+                <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="phone" type="tel" [(ngModel)]="phone" autocomplete="tel" placeholder="0801 234 5678" required />
+              </label>
+            </div>
+            <label class="flex flex-col gap-1.5 text-xs font-bold">Community Unit
+              <select class="min-h-11 border border-netrust-line bg-white px-3 text-sm font-normal" name="unitId" [(ngModel)]="unitId" required>
+                <option value="">Choose a Unit</option>
+                @for (unit of units(); track unit.id) { <option [value]="unit.id">{{ unit.name }} · {{ unit.community_name }}</option> }
+              </select>
+            </label>
+            <label class="flex flex-col gap-1.5 text-xs font-bold">Profession or headline
+              <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="headline" [(ngModel)]="headline" placeholder="e.g. Electrician, Accountant" />
+            </label>
+            <label class="flex flex-col gap-1.5 text-xs font-bold">Short introduction
+              <textarea class="border border-netrust-line px-3 py-2 text-sm font-normal" name="bio" [(ngModel)]="bio" rows="3" maxlength="1000"></textarea>
+            </label>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="flex flex-col gap-1.5 text-xs font-bold">Skills <span class="font-normal text-netrust-muted">Comma separated</span>
+                <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="skills" [(ngModel)]="skills" placeholder="First aid, accounting" />
+              </label>
+              <label class="flex flex-col gap-1.5 text-xs font-bold">Services offered <span class="font-normal text-netrust-muted">Comma separated</span>
+                <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="services" [(ngModel)]="services" placeholder="Repairs, catering" />
+              </label>
+            </div>
+            <label class="flex flex-col gap-2 text-xs font-bold">Profile photo <span class="font-normal text-netrust-muted">JPEG, PNG or WebP. Compressed to 100 KB max.</span>
+              <input class="text-xs" type="file" accept="image/jpeg,image/png,image/webp" (change)="selectPhoto($event)" required />
+            </label>
+            @if (photoPreview()) { <img class="h-24 w-24 rounded-full border border-netrust-line object-cover" [src]="photoPreview()!" alt="Selected profile photo preview" /> }
+            <label class="flex items-start gap-3 border border-netrust-line bg-netrust-paper p-3 text-xs font-normal">
+              <input class="mt-0.5" type="checkbox" name="publicListing" [(ngModel)]="publicListing" />
+              <span><strong>Show my profile in public search</strong><br />If approved, my name, photo and details I mark public can be seen before someone signs in. I can change this later.</span>
+            </label>
+            <button class="min-h-11 bg-netrust-green px-4 text-sm font-bold text-white" type="submit" [disabled]="busy()">{{ busy() ? 'Submitting…' : 'Submit for Unit review' }}</button>
+          </form>
+        }
+        @if (error()) { <p role="alert" class="mt-4 text-sm text-red-700">{{ error() }}</p> }
+      }
+    </div>
+  </section>
+</main>

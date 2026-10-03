@@ -1,0 +1,170 @@
+<main class="page">
+  <h1>Trust</h1>
+
+  <section class="max-w-3xl border-b border-netrust-line pb-7">
+    <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-blue">MEMBER-TO-MEMBER</p>
+    <h2 class="mt-1 font-display text-2xl">Community references</h2>
+    <p class="mt-2 text-sm text-netrust-muted">Request a reference from an active member who shares a verified Unit or Homecell with you. This confirms a real community relationship, not professional certification.</p>
+      @if (referenceCandidatesLoading()) {
+        <p role="status" class="mt-4 border-y border-netrust-line py-4 text-sm text-netrust-muted">Finding eligible members…</p>
+      } @else if (referenceCandidatesError()) {
+        <div role="alert" class="mt-4 border-y border-netrust-line py-4 text-sm text-red-700">
+          <p>We couldn’t load eligible members. Please try again in a moment.</p>
+          <p class="mt-1 text-xs">{{ referenceCandidatesError() }}</p>
+          <button type="button" class="mt-3" (click)="load()">Try again</button>
+        </div>
+      } @else if (referenceCandidates().length) {
+      <form class="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end" (ngSubmit)="requestMemberReference()">
+        <label class="flex flex-col gap-1.5 text-xs font-bold">Choose a community member
+          <select name="referenceMember" [(ngModel)]="selectedReferenceMemberId" required>
+            <option value="">Select someone you know</option>
+            @for (candidate of referenceCandidates(); track candidate.id) { <option [value]="candidate.id">{{ candidate.full_name }} · {{ candidate.shared_groups.join(', ') }}</option> }
+          </select>
+        </label>
+        <button type="submit" [disabled]="sendingReference()">{{ sendingReference() ? 'Sending…' : 'Request reference' }}</button>
+      </form>
+      } @else {
+        <div class="mt-4 border-y border-netrust-line py-4 text-sm text-netrust-muted">
+          <p>No eligible members were found yet. You can request a reference from an active member after you both have a verified Unit or Home Cell in common.</p>
+          <p class="mt-2 text-xs">Ask your group leader to verify your membership, or request to join a Home Cell below. Once membership is verified, eligible members will appear here.</p>
+        </div>
+      }
+      @if (newReferenceNotice()) {
+        <p role="status" class="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">A new member reference request arrived. <button type="button" (click)="dismissReferenceNotice()" class="ml-2 !min-h-0 !w-auto !border-0 !bg-transparent !p-0 text-xs !text-blue-900 !shadow-none">Dismiss</button></p>
+      }
+      @if (referenceStatus()) { <p role="status" class="mt-3 text-sm text-emerald-800">{{ referenceStatus() }}</p> }
+      @if (referenceError()) { <p role="alert" class="mt-3 text-sm text-red-700">{{ referenceError() }}</p> }
+
+      @if (incomingReferences.length) {
+        <div class="mt-7">
+          <h3 class="text-sm font-extrabold">Requests for you <span class="ml-1 text-xs font-normal text-netrust-muted">{{ incomingReferences.length }}</span></h3>
+          <ul class="mt-3 divide-y divide-netrust-line border-y border-netrust-line p-0">
+            @for (reference of incomingReferences; track reference.id) {
+              <li class="py-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div><strong class="text-sm">{{ reference.requester_name }}</strong><p class="mt-1 text-xs text-netrust-muted">Requested {{ reference.created_at | date:'mediumDate' }}</p></div>
+                  @if (reference.status === 'pending') {
+                    <div class="flex gap-2"><button type="button" (click)="beginReferenceResponse(reference)" class="!min-h-9 !w-auto !px-3 !py-1.5 text-xs">Respond</button><button type="button" (click)="respondToReference(reference, 'decline')" class="!min-h-9 !w-auto !border-red-700 !bg-white !px-3 !py-1.5 !text-xs !text-red-800 hover:!bg-red-50">Decline</button></div>
+                  } @else { <span class="text-xs font-semibold text-netrust-muted">{{ reference.status }}</span> }
+                </div>
+                @if (responseReferenceId() === reference.id) {
+                  <form class="mt-4 grid gap-3 sm:grid-cols-2" (ngSubmit)="respondToReference(reference, 'accept')">
+                    <label class="flex flex-col gap-1.5 text-xs font-bold">How do you know them?
+                      <input name="relationship-{{ reference.id }}" [(ngModel)]="referenceRelationship" placeholder="e.g. We serve in the Media Unit" required />
+                    </label>
+                    <label class="flex flex-col gap-1.5 text-xs font-bold">Years known
+                      <input name="years-{{ reference.id }}" type="number" min="0" max="80" [(ngModel)]="referenceYearsKnown" required />
+                    </label>
+                    <label class="flex flex-col gap-1.5 text-xs font-bold sm:col-span-2">Your reference <span class="font-normal text-netrust-muted">At least 20 characters. This will be attributed to your member profile.</span>
+                      <textarea name="statement-{{ reference.id }}" [(ngModel)]="referenceStatement" minlength="20" maxlength="600" rows="3" required></textarea>
+                    </label>
+                    <div class="flex flex-wrap gap-2 sm:col-span-2"><button type="submit">Accept and share reference</button><button type="button" (click)="responseReferenceId.set(null)" class="!border-netrust-line !bg-white !text-netrust-ink">Cancel</button></div>
+                  </form>
+                }
+                @if (reference.status === 'accepted' && reference.statement) { <p class="mt-2 text-sm text-netrust-muted">{{ reference.statement }}</p> }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (outgoingReferences.length) {
+        <div class="mt-7">
+          <h3 class="text-sm font-extrabold">Requests you sent</h3>
+          <ul class="mt-3 divide-y divide-netrust-line border-y border-netrust-line p-0">
+            @for (reference of outgoingReferences; track reference.id) {
+              <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+                <span class="text-sm font-semibold">{{ reference.recipient_name }}</span>
+                <span class="text-xs capitalize text-netrust-muted">{{ reference.status }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+  </section>
+
+  @if (loading()) {
+    <p>Loading…</p>
+  } @else {
+    <section>
+      <h2>Home Cell membership</h2>
+      <p class="muted">A Home Cell leader confirms membership. This is community evidence, not a guarantee of professional skill.</p>
+      @if (homeCellMemberships().length) {
+        <ul>
+          @for (membership of homeCellMemberships(); track membership.unit_id) {
+            <li><strong>{{ membership.name }}</strong> · {{ membership.status }}</li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">No Home Cell membership recorded.</p>
+      }
+      @if (homeCells().length) {
+        <form (ngSubmit)="requestHomeCellMembership()">
+          <label>
+            Request to join a Home Cell
+            <select name="homeCell" [(ngModel)]="selectedHomeCellId" required>
+              <option value="">Select a Home Cell</option>
+              @for (homeCell of homeCells(); track homeCell.id) {
+                @if (canRequestHomeCell(homeCell.id)) { <option [value]="homeCell.id">{{ homeCell.name }}</option> }
+              }
+            </select>
+          </label>
+          <button type="submit">Request verification</button>
+        </form>
+      }
+      @if (membershipMessage()) { <p class="ok">{{ membershipMessage() }}</p> }
+      @if (membershipError()) { <p role="alert" class="error">{{ membershipError() }}</p> }
+    </section>
+
+    @if (homeCellRequests().length) {
+      <section>
+        <h2>Home Cell requests to review</h2>
+        <ul class="card-list">
+          @for (request of homeCellRequests(); track request.profile_id + request.unit_id) {
+            <li class="card">
+              <strong>{{ request.full_name }}</strong>
+              <p class="muted">Requesting to join {{ request.home_cell_name }}</p>
+              <button (click)="reviewHomeCellRequest(request, true)">Confirm membership</button>
+              <button (click)="reviewHomeCellRequest(request, false)">Reject</button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section>
+      <h2>Legacy guarantor records</h2>
+      @if (attestations().length === 0) {
+        <p class="muted">No requests yet.</p>
+      }
+      <ul class="card-list">
+        @for (a of attestations(); track a.id) {
+          <li class="card">
+            <strong>{{ a.guarantor_name }}</strong> — {{ a.status }}
+            @if (a.statement) { <p>{{ a.statement }}</p> }
+            @if (a.relationship) { <p class="muted">{{ a.relationship }} · {{ a.years_known }} yrs</p> }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2>Testimonials about you</h2>
+      @if (testimonials().length === 0) {
+        <p class="muted">None yet.</p>
+      }
+      <ul class="card-list">
+        @for (t of testimonials(); track t.id) {
+          <li class="card">
+            <p>{{ t.body }}</p>
+            <p class="muted">Status: {{ t.status }}</p>
+            @if (t.status === 'pending') {
+              <button (click)="approveTestimonial(t.id, true)">Approve</button>
+              <button (click)="approveTestimonial(t.id, false)">Reject</button>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</main>

@@ -1,0 +1,31 @@
+project_id = "community-trust"
+
+[functions.request-attestation]
+verify_jwt = true    # requires the member's own session — reads/writes are scoped to auth.uid()
+
+[functions.redeem-invite]
+verify_jwt = true    # requires the new member's authenticated session before redemption
+
+[functions.create-invite]
+verify_jwt = true    # requires a signed-in community administrator
+
+[functions.validate-invite]
+verify_jwt = false   # the single-use invite token authorizes validation
+
+[functions.submit-membership-application]
+verify_jwt = false   # public application form; data is validated server-side
+
+[functions.review-membership-application]
+verify_jwt = true    # Unit leaders/community admins only
+
+[functions.manage-member-reference]
+verify_jwt = true    # authenticated same-community members only
+
+[functions.guarantor-status]
+verify_jwt = false   # public: token in the body is the only credential
+
+[functions.guarantor-send-otp]
+verify_jwt = false   # public
+
+[functions.guarantor-submit]
+verify_jwt = false   # public

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netrufy MVP v1 Product & Launch Status</title>
+<style>
+  @page { size: A4; margin: 16mm 17mm 18mm; }
+  :root { --ink:#1e2922; --muted:#657267; --green:#275b43; --blue:#2459e8; --coral:#c7654a; --lime:#d7f36a; --line:#dfe5db; --wash:#f3f6f0; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); font:10.2pt/1.48 "Segoe UI",Arial,sans-serif; }
+  h1,h2,h3,p { margin-top:0; }
+  h1 { margin-bottom:8px; font:normal 30pt/1.08 Georgia,serif; }
+  h2 { margin:0 0 10px; font:normal 19pt/1.15 Georgia,serif; }
+  h3 { margin:0 0 5px; font-size:11pt; }
+  p { margin:0 0 8px; }
+  ul,ol { margin:5px 0 10px; padding-left:20px; }
+  li { margin:0 0 4px; }
+  .cover { min-height:245mm; display:flex; flex-direction:column; justify-content:space-between; padding:18mm 0 8mm; page-break-after:always; }
+  .brand { color:var(--green); font-size:13pt; font-weight:800; }
+  .eyebrow { margin:0 0 12px; color:var(--blue); font-size:9pt; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; }
+  .lead { max-width:145mm; color:#455449; font-size:14pt; line-height:1.5; }
+  .cover-band { margin-top:16mm; padding:12mm; border-left:5px solid var(--lime); background:var(--wash); }
+  .cover-band strong { color:var(--green); }
+  .meta { color:var(--muted); font-size:9pt; }
+  .section { margin-bottom:18px; }
+  .section + .section { margin-top:14px; }
+  .page-break { page-break-before:always; }
+  .status { display:inline-block; padding:5px 9px; border:1px solid #d7e5d8; background:#edf5ed; color:#254b32; font-size:9pt; font-weight:700; }
+  .callout { margin:10px 0; padding:10px 12px; border-left:3px solid var(--blue); background:#f0f5ff; }
+  .warning { border-left-color:var(--coral); background:#fff5ef; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .item { padding:9px 10px; border:1px solid var(--line); }
+  .item p { margin:0; color:var(--muted); font-size:9.2pt; }
+  table { width:100%; margin:8px 0 12px; border-collapse:collapse; font-size:9.3pt; }
+  th,td { padding:7px 8px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { background:var(--wash); color:var(--green); font-size:8.5pt; text-transform:uppercase; letter-spacing:.3px; }
+  .check { color:var(--green); font-weight:800; }
+  .todo { color:#87431f; font-weight:800; }
+  .small { color:var(--muted); font-size:8.7pt; }
+  .footer { margin-top:18px; padding-top:7px; border-top:1px solid var(--line); color:var(--muted); font-size:8pt; }
+  code { padding:1px 4px; background:var(--wash); font:8.5pt Consolas,monospace; }
+  @media print { a { color:inherit; text-decoration:none; } }
+</style>
+</head>
+<body>
+<section class="cover">
+  <div>
+    <p class="brand">Netrufy</p>
+    <p class="eyebrow">Product & launch status · MVP v1</p>
+    <h1>Make your community searchable.</h1>
+    <p class="lead">A plain-language breakdown of what Netrufy does today, how membership and trust work, what remains before a pilot launch, and where to focus next.</p>
+    <div class="cover-band">
+      <p><strong>Product promise</strong></p>
+      <p style="margin:0">Discover people, skills, and services in a real community. See which community relationships have been confirmed. Connect directly, while members control what they share.</p>
+    </div>
+  </div>
+  <div>
+    <span class="status">Implementation: MVP flow built; Supabase rollout and live end-to-end tests remain</span>
+    <p class="meta" style="margin-top:12px">Prepared October 3, 2026 · Scope: current Netrufy workspace</p>
+  </div>
+</section>
+
+<section class="section">
+  <p class="eyebrow">01 · Executive summary</p>
+  <h2>Where the product stands</h2>
+  <p>Netrufy is a community directory and membership network, not yet a general job board or marketplace. The first release focuses on people and services that belong to an existing community.</p>
+  <div class="callout warning"><strong>Launch status:</strong> the Angular application builds, but the latest database migration and Edge Functions must be applied/deployed to the existing Supabase project, and the live email/SMS/storage flow must be tested before inviting a pilot group.</div>
+  <p>The sample directory records were removed when search switched to real Supabase data. Public search intentionally shows only profiles that opt in. Existing members default to hidden until they enable public listing and choose which fields are public.</p>
+</section>
+
+<section class="section">
+  <p class="eyebrow">02 · Product structure</p>
+  <h2>How Netrufy is organized</h2>
+  <div class="grid">
+    <div class="item"><h3>Community</h3><p>The tenant boundary. Members and groups belong to a community.</p></div>
+    <div class="item"><h3>Unit</h3><p>The department/group used for member applications and Unit-leader review.</p></div>
+    <div class="item"><h3>Homecell</h3><p>A separate fellowship affiliation and additional community verification signal.</p></div>
+    <div class="item"><h3>Member</h3><p>A Supabase Auth account with a Netrufy profile, optional affiliations, skills, services, and chosen visibility.</p></div>
+  </div>
+  <p class="small">Unit and Homecell are parallel community relationships. A confirmed membership proves connection to that group, not professional certification or service quality.</p>
+</section>
+
+<section class="section page-break">
+  <p class="eyebrow">03 · Current experience</p>
+  <h2>What a person can do</h2>
+  <table>
+    <thead><tr><th>Area</th><th>Implemented behavior</th><th>Important boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Landing page</td><td>Search-led welcome, example profession searches, join calls to action, product explanation, trust principle, footer.</td><td>Search returns only profiles explicitly listed publicly.</td></tr>
+      <tr><td>Public directory</td><td>Search people, headline/profession, services, skills, Unit and Homecell when those fields are public; open profile details and public links.</td><td>No phone, email, or private profile fields in public views.</td></tr>
+      <tr><td>Membership application</td><td>Visitor chooses a Unit and submits name, email, phone, headline, bio, skills/services, photo, and public-listing consent.</td><td>Applicant is not a member and cannot enter member-only views while pending.</td></tr>
+      <tr><td>Photo</td><td>Client compresses JPEG/PNG/WebP to 100 KB max; server and private Storage bucket enforce type/size; reviewer sees a short-lived signed URL.</td><td>Publishing a profile photo requires public-listing and Photo visibility consent; published image URL is public.</td></tr>
+      <tr><td>Unit review</td><td>Unit leader sees pending applications, searches lists, approves/rejects, and maintains the Unit roster.</td><td>Approval creates an email-bound, seven-day invite; current UI provides the link for the leader to copy/send.</td></tr>
+      <tr><td>Account creation</td><td>Approved person creates an email/password account and redeems their invite; profile is created after redemption.</td><td>Email confirmation and callback URLs must be configured in Supabase.</td></tr>
+      <tr><td>Member profile</td><td>Edit details, opt into public search, choose audience for each field, upload own profile photo, add/remove portfolio/social links.</td><td>Existing profiles start private after migration until members opt in.</td></tr>
+      <tr><td>Community admin</td><td>Create Unit/Homecell groups, assign leaders, and issue direct invitations for exceptional/manual cases.</td><td>Admin and Unit-admin routes depend on assigned database roles/memberships.</td></tr>
+      <tr><td>Contact</td><td>Authenticated members can request a phone reveal; the existing RPC logs contact and checks contact visibility, then opens WhatsApp.</td><td>In-app chat is not implemented.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section">
+  <p class="eyebrow">04 · Trust and guarantors</p>
+  <h2>What “vouching” proves—and what it doesn’t</h2>
+  <p>The previous guarantor request accepted any phone number. That meant a user could nominate someone outside the platform; the SMS OTP proved control of that phone, not community eligibility. This was a real trust gap.</p>
+  <div class="callout"><strong>Current code change:</strong> the request now requires the phone to match a Netrufy profile in the same community with at least one verified Unit/Homecell membership. The displayed name is taken from that profile. SMS OTP, a single-use link, expiry, attempt limits, and audit logging remain part of the flow.</div>
+  <p><strong>Remaining distinction:</strong> this allows any verified group member to vouch, not only a leader. Phone verification confirms access to a registered number; it does not independently prove identity, closeness of relationship, professional skill, or future conduct. If the product promise requires official endorsement, restrict guarantors to designated leaders or admins. Otherwise label the signal “member confirmed” and keep “vouch” as an attributed personal statement.</p>
+  <p class="small">SMS delivery requires the <code>request-attestation</code>, <code>guarantor-send-otp</code>, <code>guarantor-status</code>, and <code>guarantor-submit</code> functions plus Termii credentials and <code>APP_URL</code>. The flow has not been verified against the live SMS provider.</p>
+</section>
+
+<section class="section page-break">
+  <p class="eyebrow">05 · Architecture and safeguards</p>
+  <h2>What protects the data</h2>
+  <ul>
+    <li>Supabase Auth stores passwords; Netrufy does not store raw passwords in its profile table.</li>
+    <li>Postgres RLS separates communities and permits Unit leaders to review only their Unit's application queue.</li>
+    <li>The public directory uses a dedicated safe view; it does not expose phone numbers or private fields.</li>
+    <li>Application photos live in a private bucket until review. Approved opted-in photos are copied to public profile storage.</li>
+    <li>Public listing and per-field audiences are separate controls; public listing is off by default.</li>
+    <li>Edge Functions use the service role only server-side for privileged application, invitation, and guarantor actions.</li>
+  </ul>
+  <div class="callout warning"><strong>Operational caveat:</strong> deleting/withdrawing public consent must also remove or privatize an already-published photo object; otherwise a previously copied public URL could remain accessible. Verify this revocation path before a broad launch.</div>
+</section>
+
+<section class="section">
+  <p class="eyebrow">06 · Launch blockers</p>
+  <h2>Do these before a real pilot</h2>
+  <ol>
+    <li><strong>Apply migration 0005 once</strong> to the existing Supabase project if it has not already succeeded. It adds applications, public views, profile listing/photo fields, invite bindings, and storage policies.</li>
+    <li><strong>Deploy all Edge Functions</strong>, especially <code>submit-membership-application</code>, <code>review-membership-application</code>, updated <code>redeem-invite</code>, and all four guarantor functions.</li>
+    <li><strong>Configure URLs and secrets:</strong> Auth callback allow-list, <code>APP_BASE_URL</code>, <code>APP_URL</code>, Termii API key and approved sender ID, plus deployed app URL.</li>
+    <li><strong>Assign Unit leaders</strong> and verify each leader has an active verified membership in the Unit they manage.</li>
+    <li><strong>Complete a real pilot walkthrough:</strong> public search → application → compressed photo upload → leader notification/review → rejection and approval → email-bound signup → profile creation → public consent → contact reveal → guarantor request.</li>
+    <li><strong>Test privacy and abuse boundaries:</strong> anonymous access, wrong-community leader, wrong invite email, duplicate application, oversized/wrong-type photo, expired invite, removed membership, SMS failure, and public-photo revocation.</li>
+  </ol>
+  <p class="small">The Angular development build passes. Supabase SQL, Edge Functions, RLS, Storage, realtime notifications, and Termii have not been exercised end-to-end from this environment.</p>
+</section>
+
+<section class="section">
+  <p class="eyebrow">07 · Limitations and risks</p>
+  <h2>What is not finished</h2>
+  <table>
+    <thead><tr><th>Gap</th><th>Why it matters</th><th>V1 decision</th></tr></thead>
+    <tbody>
+      <tr><td>Approval email delivery</td><td>Leader currently gets/copies an invite link; applicant is not automatically emailed an approval or rejection.</td><td>Add transactional email before scaling beyond a closely managed pilot.</td></tr>
+      <tr><td>Notifications</td><td>Unit leaders see a realtime notice only while the dashboard is open.</td><td>Add email notification or a persistent unread queue.</td></tr>
+      <tr><td>Application status page</td><td>Applicant sees submission success but has no self-service status/history.</td><td>Useful after the pilot; support can handle initial inquiries.</td></tr>
+      <tr><td>Rate limiting / bot control</td><td>Public application endpoint and upload flow can receive spam or orphan uploads.</td><td>Add per-IP limits, CAPTCHA/rate limit, storage cleanup, and retention policy before wide release.</td></tr>
+      <tr><td>In-app messaging</td><td>No message table, inbox, or conversation workflow exists.</td><td>Use consent-based phone reveal/WhatsApp for pilot; do not imply chat exists.</td></tr>
+      <tr><td>Businesses and opportunities</td><td>No complete listing, moderation, or job application models/workflows yet.</td><td>Keep out of MVP; add after discovery behavior is proven.</td></tr>
+      <tr><td>Photo revocation</td><td>Public storage URLs may remain reachable after a user turns public listing off.</td><td>Implement reliable deletion/privatization and cache strategy before public rollout.</td></tr>
+      <tr><td>Automated tests</td><td>Current verification is primarily Angular builds; live database/security flows are untested.</td><td>Add RLS tests and browser tests for visitor, applicant, leader, member, and admin roles.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="section page-break">
+  <p class="eyebrow">08 · Recommended MVP v1</p>
+  <h2>Keep the launch focused</h2>
+  <div class="grid">
+    <div class="item"><h3>Visitor</h3><p>Land on search, search public profiles without an account, view only consented information, apply to a Unit.</p></div>
+    <div class="item"><h3>Applicant</h3><p>Submit a small photo and details; wait for Unit review; receive a bound signup invitation if approved.</p></div>
+    <div class="item"><h3>Unit leader</h3><p>Review applications, approve/reject with a reason, maintain the roster, and see who is responsible for the Unit.</p></div>
+    <div class="item"><h3>Member</h3><p>Set up a password, edit profile, choose public fields, publish profile if desired, and connect through disclosed channels.</p></div>
+  </div>
+  <h3 style="margin-top:16px">Launch order</h3>
+  <ol>
+    <li>Complete Supabase migration/deploy/configuration and assign leaders.</li>
+    <li>Run one Unit with 20–50 invited/applicant members and verify photo/privacy/moderation operations.</li>
+    <li>Measure searches, profile opens, contact requests, approved applications, and successful connections.</li>
+    <li>Only then add notification email, businesses, opportunities, or messaging based on pilot feedback.</li>
+  </ol>
+  <div class="cover-band"><strong>Core principle</strong><p style="margin:5px 0 0">Netrufy makes relevant community relationships visible. It facilitates trust; it does not certify professional ability or guarantee outcomes.</p></div>
+  <p class="footer">Netrufy · MVP v1 status · October 3, 2026 · Prepared from the current code and setup guide; confirm live Supabase deployment before launch.</p>
+</section>
+</body>
+</html>

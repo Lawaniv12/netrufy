@@ -1,0 +1,48 @@
+<main class="auth-card">
+  @switch (stage()) {
+    @case ('loading') {
+      <p>Loading…</p>
+    }
+    @case ('invalid') {
+      <p>This link is invalid or has expired.</p>
+    }
+    @case ('done') {
+      <h1>Thank you</h1>
+      <p>Your attestation has been recorded. This link no longer works.</p>
+    }
+    @default {
+      <h1>Vouch for {{ memberName() }}</h1>
+      <p>Hi {{ guarantorName() }}. Confirm your phone, then tell us how you know them. Only say what you can stand behind.</p>
+
+      @if (stage() === 'need-code') {
+        <button (click)="sendCode()" [disabled]="busy()">{{ busy() ? 'Sending…' : 'Text me a code' }}</button>
+      }
+
+      @if (stage() === 'code-sent') {
+        <form (ngSubmit)="submit()">
+          <label>
+            6-digit code
+            <input name="code" [(ngModel)]="code" inputmode="numeric" maxlength="6" required />
+          </label>
+          <label>
+            How do you know them?
+            <input name="relationship" [(ngModel)]="relationship" placeholder="e.g. Choir section leader" required />
+          </label>
+          <label>
+            Years known
+            <input name="yearsKnown" type="number" min="0" max="80" [(ngModel)]="yearsKnown" required />
+          </label>
+          <label>
+            Your statement
+            <textarea name="statement" rows="4" maxlength="600" [(ngModel)]="statement" required
+              placeholder="Character, reliability, skills you've seen"></textarea>
+          </label>
+          <button type="submit" [disabled]="busy()">{{ busy() ? 'Submitting…' : 'Submit' }}</button>
+          <button type="button" (click)="sendCode()" [disabled]="busy()">Resend code</button>
+        </form>
+      }
+
+      @if (error()) { <p role="alert" class="error">{{ error() }}</p> }
+    }
+  }
+</main>

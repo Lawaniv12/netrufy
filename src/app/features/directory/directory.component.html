@@ -1,0 +1,226 @@
+<main class="mx-auto min-h-screen w-full max-w-[1160px] px-6 pb-14 pt-8 text-netrust-ink sm:pt-10">
+  <section class="border-b border-netrust-line pb-7 sm:pb-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="mb-2 text-[10px] font-extrabold tracking-[0.16em] text-netrust-blue">SEARCH YOUR TRUSTED NETWORK</p>
+        <h1 class="font-display text-4xl font-normal leading-tight sm:text-[42px]">Find people in your community</h1>
+        <p class="mt-2 text-sm text-netrust-muted sm:text-base">Search a profession, skill, service, or Unit. No sign-in needed.</p>
+      </div>
+      <a routerLink="/apply" class="mb-1 text-sm font-bold text-netrust-green hover:underline">Apply to join →</a>
+    </div>
+
+    <div class="mt-6 flex min-h-12 max-w-4xl items-center gap-3 rounded-md border border-netrust-line bg-white px-4 shadow-sm focus-within:border-netrust-blue focus-within:ring-2 focus-within:ring-blue-100">
+      <svg class="h-5 w-5 shrink-0 text-netrust-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+      <input class="!min-h-0 !w-full !border-0 !bg-transparent !p-0 !text-sm !shadow-none !outline-none focus:!ring-0" type="search" [(ngModel)]="search" placeholder="Search people, skills or services" aria-label="Search people, skills or services" />
+      <span class="hidden shrink-0 text-[10px] font-bold tracking-wider text-netrust-muted sm:inline">PUBLIC PROFILES</span>
+    </div>
+  </section>
+
+  <section class="py-7" aria-labelledby="explore-heading">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <h2 id="explore-heading" class="font-display text-2xl">Explore your community</h2>
+      <span class="hidden text-xs text-netrust-muted sm:inline">A network of people and what they can do</span>
+    </div>
+    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Explore community directory">
+      <button type="button" role="tab" (click)="explore('people')" [attr.aria-selected]="activeView() === 'people'" [style.background-color]="activeView() === 'people' ? '#eaf4ed' : '#fffefa'" [style.color]="activeView() === 'people' ? '#275b43' : '#737c72'" [style.border-color]="activeView() === 'people' ? '#275b43' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">People <span class="ml-1 text-[10px] font-normal">Meet your community</span></button>
+      <button type="button" role="tab" (click)="explore('services')" [attr.aria-selected]="activeView() === 'services'" [style.background-color]="activeView() === 'services' ? '#fff4df' : '#fffefa'" [style.color]="activeView() === 'services' ? '#7a4b0b' : '#737c72'" [style.border-color]="activeView() === 'services' ? '#dca94c' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">Services <span class="ml-1 text-[10px] font-normal">What members offer</span></button>
+      <button type="button" role="tab" (click)="explore('skills')" [attr.aria-selected]="activeView() === 'skills'" [style.background-color]="activeView() === 'skills' ? '#edf3ff' : '#fffefa'" [style.color]="activeView() === 'skills' ? '#2459e8' : '#737c72'" [style.border-color]="activeView() === 'skills' ? '#7799f4' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">Skills <span class="ml-1 text-[10px] font-normal">What members know</span></button>
+      <span class="flex w-full items-center gap-2 px-1 text-[11px] text-netrust-muted sm:w-auto sm:px-3"><span>Businesses</span><span aria-hidden="true">·</span><span>Opportunities</span><span class="text-[10px]">Coming later</span></span>
+    </div>
+  </section>
+
+  <section class="border-t border-netrust-line py-7" aria-labelledby="members-heading">
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="mb-1 text-[10px] font-extrabold tracking-[0.13em] text-netrust-coral">CONNECTED BY COMMUNITY</p>
+        <h2 id="members-heading" class="font-display text-2xl">{{ sectionTitle }}</h2>
+      </div>
+      <span class="text-xs text-netrust-muted" aria-live="polite">{{ filtered.length }} {{ filtered.length === 1 ? 'result' : 'results' }}</span>
+    </div>
+
+    @if (selectedService()) {
+      <button type="button" (click)="explore('services')" class="mb-4 inline-flex items-center gap-2 rounded border border-netrust-line bg-netrust-surface px-3 py-2 text-xs font-semibold text-netrust-green">
+        {{ selectedService() }} <span aria-hidden="true">×</span>
+      </button>
+    }
+
+    @if (loading()) {
+      <p class="py-8 text-sm text-netrust-muted">Finding your community…</p>
+    } @else if (error()) {
+      <p role="alert" class="py-8 text-sm text-red-700">{{ error() }}</p>
+    } @else if (filtered.length === 0) {
+      <div class="border-y border-netrust-line py-10 text-center">
+        @if (people().length === 0 && !search().trim()) {
+          <p class="font-display text-xl">No public profiles yet</p>
+          <p class="mx-auto mt-1 max-w-lg text-sm text-netrust-muted">Community members appear here only after they opt into public search and choose which profile details anyone can see.</p>
+          <a routerLink="/apply" class="mt-4 inline-block text-sm font-bold text-netrust-green hover:underline">Apply to join your community →</a>
+        } @else {
+          <p class="font-display text-xl">No matches just yet</p>
+          <p class="mt-1 text-sm text-netrust-muted">Try another name, skill or service.</p>
+        }
+      </div>
+    } @else {
+      <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        @for (p of filtered; track p.id) {
+          <li role="button" tabindex="0" [attr.aria-label]="'Open profile for ' + p.full_name" (click)="openProfile(p)" (keydown.enter)="openProfile(p)" (keydown.space)="openProfile(p)" class="cursor-pointer overflow-hidden rounded-md border border-netrust-line bg-white transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-netrust-green">
+            <div class="relative aspect-[1.8/1] overflow-hidden bg-emerald-50">
+              <span class="absolute inset-0 grid place-items-center font-display text-4xl text-emerald-900/50" aria-hidden="true">{{ initials(p.full_name) }}</span>
+              @if (p.photo_url) { <img class="relative h-full w-full object-cover" [src]="p.photo_url" [alt]="'Portrait of ' + p.full_name" loading="lazy" /> }
+              @if (p.services?.length) { <span class="absolute bottom-3 left-3 rounded-sm bg-white/95 px-2.5 py-1 text-[10px] font-bold text-emerald-900">Offers services</span> }
+            </div>
+            <div class="p-4 sm:p-5">
+            <div class="flex items-start gap-3">
+              <div class="min-w-0 flex-1">
+                <h3 class="truncate text-base font-extrabold">{{ p.full_name }}</h3>
+                @if (p.headline) { <p class="mt-0.5 truncate text-sm text-netrust-muted">{{ p.headline }}</p> }
+                <p class="mt-1 truncate text-xs text-netrust-muted">{{ p.community_name }}</p>
+                @if (p.location) { <p class="mt-1 text-xs text-netrust-muted">{{ p.location }}</p> }
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-1.5">
+              <span class="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-900"><span aria-hidden="true">✓</span> Community</span>
+              @for (unit of p.units ?? []; track unit) {
+                <span class="inline-flex items-center gap-1 rounded-sm bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-900"><span aria-hidden="true">✓</span> {{ unit }}</span>
+              }
+              @for (homeCell of p.home_cells ?? []; track homeCell) {
+                <span class="inline-flex items-center gap-1 rounded-sm bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-900"><span aria-hidden="true">✓</span> {{ homeCell }} Homecell</span>
+              }
+            </div>
+
+            @if (p.services?.length) {
+              <div class="mt-4">
+                <p class="mb-2 text-[10px] font-extrabold uppercase tracking-wide text-netrust-muted">Services</p>
+                <div class="flex flex-wrap gap-1.5">
+                  @for (service of p.services; track service) { <span class="rounded-sm bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-900">{{ service }}</span> }
+                </div>
+              </div>
+            }
+            @if (p.skills?.length) {
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                @for (skill of p.skills; track skill) { <span class="rounded-sm bg-netrust-paper px-2 py-1 text-xs text-netrust-ink">{{ skill }}</span> }
+              </div>
+            }
+
+            <div class="mt-4 flex justify-end border-t border-netrust-line pt-3 text-[10px] font-bold tracking-wide text-netrust-muted">
+              View full profile <span aria-hidden="true">→</span>
+            </div>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (!loading() && serviceOffers.length) {
+    <section class="border-t border-netrust-line py-7" aria-labelledby="services-heading">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p class="mb-1 text-[10px] font-extrabold tracking-[0.13em] text-netrust-coral">MADE AVAILABLE BY MEMBERS</p>
+          <h2 id="services-heading" class="font-display text-2xl">Services people are offering</h2>
+        </div>
+        <button type="button" (click)="explore('services')" class="!min-h-0 !w-auto !border-0 !bg-transparent !px-0 !py-1 !text-xs !font-bold !text-netrust-green !shadow-none hover:!bg-transparent hover:!text-green-900">View all services →</button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        @for (offer of serviceOffers; track offer.name) {
+          <button type="button" (click)="exploreService(offer.name)" class="!min-h-0 !w-auto rounded !border !border-netrust-line !bg-white !px-3 !py-2 text-left !text-netrust-ink !shadow-none transition hover:!border-amber-300 hover:!bg-amber-50">
+            <span class="text-sm font-semibold">{{ offer.name }}</span>
+            <span class="ml-2 text-xs text-netrust-muted">{{ offer.count }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  @if (selectedProfile(); as selected) {
+    <div class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/50 p-4 sm:p-6" (click)="closeProfile()">
+      <section role="dialog" aria-modal="true" [attr.aria-label]="selected.full_name + ' profile'" (click)="$event.stopPropagation()" (keydown.escape)="closeProfile()" class="my-auto w-full max-w-2xl overflow-hidden rounded-md border border-netrust-line bg-white shadow-2xl">
+        <div class="relative h-48 bg-emerald-50 sm:h-64">
+          <span class="absolute inset-0 grid place-items-center font-display text-6xl text-emerald-900/50" aria-hidden="true">{{ initials(selected.full_name) }}</span>
+          @if (selected.photo_url) { <img class="relative h-full w-full object-cover" [src]="selected.photo_url" [alt]="'Portrait of ' + selected.full_name" /> }
+          <button type="button" aria-label="Close profile" (click)="closeProfile()" class="absolute right-3 top-3 !min-h-9 !w-9 !rounded-full !border-white/80 !bg-white/95 !p-0 !text-lg !text-netrust-ink !shadow-none">×</button>
+        </div>
+        <div class="max-h-[min(65vh,620px)] overflow-y-auto p-5 sm:p-7">
+          <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-coral">COMMUNITY MEMBER</p>
+          <h2 class="mt-1 font-display text-3xl">{{ selected.full_name }}</h2>
+          @if (selected.headline) { <p class="mt-1 text-base text-netrust-muted">{{ selected.headline }}</p> }
+          @if (selected.location) { <p class="mt-1 text-sm text-netrust-muted">{{ selected.location }}</p> }
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="rounded-sm bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900">✓ Community member</span>
+            @for (unit of selected.units ?? []; track unit) { <span class="rounded-sm bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-900">✓ {{ unit }}</span> }
+            @for (homeCell of selected.home_cells ?? []; track homeCell) { <span class="rounded-sm bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-950">✓ {{ homeCell }}</span> }
+          </div>
+
+          @if (selected.bio) {
+            <section class="mt-6 border-t border-netrust-line pt-5">
+              <h3 class="text-sm font-extrabold">About</h3>
+              <p class="mt-2 whitespace-pre-line text-sm leading-6 text-netrust-muted">{{ selected.bio }}</p>
+            </section>
+          }
+          @if (selected.services?.length) {
+            <section class="mt-6 border-t border-netrust-line pt-5">
+              <h3 class="text-sm font-extrabold">Services</h3>
+              <div class="mt-3 flex flex-wrap gap-2">
+                @for (service of selected.services; track service) { <span class="rounded-sm bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-950">{{ service }}</span> }
+              </div>
+            </section>
+          }
+          @if (selected.skills?.length) {
+            <section class="mt-6 border-t border-netrust-line pt-5">
+              <h3 class="text-sm font-extrabold">Skills</h3>
+              <div class="mt-3 flex flex-wrap gap-2">
+                @for (skill of selected.skills; track skill) { <span class="rounded-sm bg-netrust-paper px-2.5 py-1.5 text-xs text-netrust-ink">{{ skill }}</span> }
+              </div>
+            </section>
+          }
+          @if (selected.community_references?.length) {
+            <section class="mt-6 border-t border-netrust-line pt-5">
+              <h3 class="text-sm font-extrabold">Community references</h3>
+              <ul class="mt-3 divide-y divide-netrust-line border-y border-netrust-line p-0">
+                @for (reference of selected.community_references; track reference.member_name + reference.responded_at) {
+                  <li class="py-3">
+                    <p class="text-sm font-semibold">{{ reference.member_name }} <span class="font-normal text-netrust-muted">· {{ reference.relationship }}</span></p>
+                    <p class="mt-1 text-sm leading-5 text-netrust-muted">{{ reference.statement }}</p>
+                    <p class="mt-1 text-[10px] text-netrust-muted">Member reference · {{ reference.years_known }} {{ reference.years_known === 1 ? 'year' : 'years' }} known</p>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+          <section class="mt-6 border-t border-netrust-line pt-5">
+            <h3 class="text-sm font-extrabold">Portfolio & social links</h3>
+            @if (detailsLoading()) {
+              <p class="mt-2 text-sm text-netrust-muted">Loading shared links…</p>
+            } @else if (selectedLinks().length) {
+              <ul class="mt-3 grid gap-2 p-0">
+                @for (link of selectedLinks(); track link.id) {
+                  <li><a class="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-netrust-green hover:underline" [href]="link.url" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">↗</span>{{ profileLinkLabel(link.kind) }}</a></li>
+                }
+              </ul>
+            } @else {
+              <p class="mt-2 text-sm text-netrust-muted">No portfolio or social links have been shared.</p>
+            }
+          </section>
+          <section class="mt-6 border-t border-netrust-line pt-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-extrabold">Contact</h3>
+                <p class="mt-1 text-xs text-netrust-muted">Phone contact is shown only if the member allows it.</p>
+              </div>
+              @if (contactPhone()) {
+                <a class="inline-flex min-h-10 items-center bg-emerald-700 px-4 text-xs font-bold text-white no-underline hover:bg-emerald-800" [href]="waLink(contactPhone()!, selected.full_name)" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+              } @else if (isAuthed) {
+                <button type="button" (click)="revealProfileContact(selected.id)" class="!min-h-10 !w-auto !px-4 text-xs">Reveal contact</button>
+              } @else {
+                <a routerLink="/login" [queryParams]="{ returnTo: '/directory' }" class="text-xs font-bold text-netrust-green hover:underline">Sign in to request contact</a>
+              }
+            </div>
+            @if (contactMessage()) { <p role="status" class="mt-2 text-xs text-netrust-muted">{{ contactMessage() }}</p> }
+          </section>
+          <p class="mt-6 border-t border-netrust-line pt-4 text-[11px] text-netrust-muted">Community and group verification confirms membership only. It does not certify professional ability or guarantee service quality.</p>
+        </div>
+      </section>
+    </div>
+  }
+</main>

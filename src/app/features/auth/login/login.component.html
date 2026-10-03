@@ -1,0 +1,82 @@
+<main class="auth-experience">
+  <section class="auth-story" aria-labelledby="story-title">
+    <a class="auth-brand" routerLink="/" aria-label="Netrufy home">
+      <span class="auth-brand-mark" aria-hidden="true">n</span>
+      <span>Netrufy</span>
+    </a>
+
+    <div class="story-copy">
+      <p class="story-kicker">COMMUNITY ECONOMIC NETWORK</p>
+      <h1 id="story-title">The right people are closer than you think.</h1>
+      <p>Find the services, skills and businesses already within your community.</p>
+      <div class="community-signals" aria-label="Community verification signals">
+        <span>Department / Unit</span>
+        <span>Homecell</span>
+      </div>
+    </div>
+
+    <p class="story-footer">DISCOVER LOCALLY <span aria-hidden="true">/</span> CONNECT DIRECTLY</p>
+  </section>
+
+  <section class="auth-panel" aria-labelledby="login-title">
+    <div class="panel-content">
+      <div class="step-track" aria-label="Sign-in progress">
+        <span [class.current-step]="step() === 'sign-in' || step() === 'forgot'">01 <i></i> ACCOUNT</span>
+        <span [class.current-step]="step() === 'sent'">02 <i></i> RECOVERY</span>
+      </div>
+
+      @if (step() === 'sign-in') {
+        <p class="panel-kicker">MEMBER ACCESS</p>
+        <h2 id="login-title">Welcome back.</h2>
+        <p class="panel-intro">Sign in to find people, skills and services in your community.</p>
+        <form (ngSubmit)="signIn()">
+          <label>
+            Email address
+            <input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" required autocomplete="email" />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" [(ngModel)]="password" placeholder="Enter your password" required autocomplete="current-password" />
+          </label>
+          <button class="auth-submit" type="submit" [disabled]="busy()">
+            {{ busy() ? 'Signing in…' : 'Sign in' }}
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <button type="button" class="text-action forgot-action" (click)="showForgotPassword()">Forgot password?</button>
+      } @else if (step() === 'forgot') {
+        <p class="panel-kicker">ACCOUNT RECOVERY</p>
+        <h2 id="login-title">Reset your password.</h2>
+        <p class="panel-intro">We’ll send a one-time recovery link to your email so you can choose a new password.</p>
+        <form (ngSubmit)="requestPasswordReset()">
+          <label>
+            Email address
+            <input name="email" type="email" [(ngModel)]="email" placeholder="you@example.com" required autocomplete="email" />
+          </label>
+          <button class="auth-submit" type="submit" [disabled]="busy()">
+            {{ busy() ? 'Sending recovery link…' : 'Send recovery link' }}
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <button type="button" class="text-action forgot-action" (click)="backToSignIn()">Back to sign in</button>
+      } @else {
+        <p class="panel-kicker">CHECK YOUR INBOX</p>
+        <h2 id="login-title">Recovery link sent.</h2>
+        <p class="panel-intro" aria-live="polite">If an account exists for <strong>{{ sentTo() }}</strong>, a one-time password recovery link is on its way.</p>
+        <div class="link-instructions">
+          <span aria-hidden="true">1</span><p>Open the recovery email.</p>
+          <span aria-hidden="true">2</span><p>Follow its link to choose a new password.</p>
+        </div>
+        <button type="button" class="text-action forgot-action" (click)="backToSignIn()">Back to sign in</button>
+      }
+
+      @if (error()) { <p role="alert" class="auth-error">{{ error() }}</p> }
+
+      <aside class="invite-note">
+        <span class="invite-mark" aria-hidden="true">↗</span>
+        <p><strong>New to your community?</strong><br />Apply to join a Unit. Its leader reviews your application before you become a member. <a routerLink="/apply">Start an application</a></p>
+      </aside>
+    </div>
+    <p class="panel-footer">Your community, made easier to find.</p>
+  </section>
+</main>
