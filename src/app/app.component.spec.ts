@@ -1,10 +1,21 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flushMicrotasks, TestBed, tick } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { SupabaseService } from './core/services/supabase.service';
 
 describe('AppComponent', () => {
+  let supabase: jasmine.SpyObj<SupabaseService>;
+
   beforeEach(async () => {
+    supabase = jasmine.createSpyObj<SupabaseService>('SupabaseService', ['isAuthed', 'profile', 'signOut']);
+    supabase.isAuthed.and.returnValue(true);
+    supabase.profile.and.returnValue(null);
+    supabase.signOut.and.resolveTo({ error: null } as any);
+
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, RouterTestingModule],
+      providers: [{ provide: SupabaseService, useValue: supabase }],
     }).compileComponents();
   });
 
@@ -14,16 +25,18 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'community-trust-app' title`, () => {
+  it('should sign out after the inactivity timeout', fakeAsync(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('community-trust-app');
-  });
+    const router = TestBed.inject(Router);
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, community-trust-app');
-  });
+    spyOn(router, 'navigate').and.resolveTo(true);
+    spyOn(app as any, 'signOut').and.callThrough();
+
+    tick(20 * 60 * 1000);
+    flushMicrotasks();
+
+    expect((app as any).signOut).toHaveBeenCalled();
+    expect(supabase.signOut).toHaveBeenCalled();
+  }));
 });

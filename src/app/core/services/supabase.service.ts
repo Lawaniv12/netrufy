@@ -73,6 +73,10 @@ export class SupabaseService {
     return this.client.auth.signOut();
   }
 
+  signOutLocally() {
+    return this.client.auth.signOut({ scope: 'local' });
+  }
+
   /** Invoke a privileged Edge Function (see supabase/functions) — never call service-role logic from the client. */
   invoke<T = unknown>(fn: string, body: Record<string, unknown>) {
     return this.client.functions.invoke<T>(fn, { body });
