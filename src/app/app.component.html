@@ -11,6 +11,9 @@
         </button>
         <div id="mobile-menu" class="nav-links" [class.mobile-open]="mobileMenuOpen()" (keydown.escape)="closeMobileMenu()">
           <a routerLink="/directory" routerLinkActive="active" (click)="closeMobileMenu()">Directory</a>
+          @if (supabase.profile()?.role === 'member') {
+            <a routerLink="/messages" routerLinkActive="active" (click)="closeMobileMenu()">Messages</a>
+          }
           <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My profile</a>
           <a routerLink="/trust" routerLinkActive="active" (click)="closeMobileMenu()">Trust</a>
           <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>

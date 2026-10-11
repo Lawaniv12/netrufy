@@ -12,8 +12,11 @@ For a new Supabase project, run these SQL files in order in **Supabase Dashboard
 4. [0004_home_cell_verification.sql](supabase/migrations/0004_home_cell_verification.sql)
 5. [0005_public_discovery_and_applications.sql](supabase/migrations/0005_public_discovery_and_applications.sql)
 6. [0006_member_references.sql](supabase/migrations/0006_member_references.sql)
+7. [0007_member_photo_storage_rls.sql](supabase/migrations/0007_member_photo_storage_rls.sql)
+8. [0008_member_messaging.sql](supabase/migrations/0008_member_messaging.sql)
+9. [0009_unit_roster_role.sql](supabase/migrations/0009_unit_roster_role.sql)
 
-If earlier migrations are already applied, run only the missing later migrations, in order. Public search, membership applications, the Unit review queue, and the 100 KB photo buckets require `0005_public_discovery_and_applications.sql`. These migrations are not repeatable; do not rerun one that has already succeeded.
+If earlier migrations are already applied, run only the missing later migrations, in order. Public search, membership applications, the Unit review queue, and the 100 KB photo buckets require `0005_public_discovery_and_applications.sql`. Migrations `0001`–`0006` are not repeatable; do not rerun one that has already succeeded. Migration `0007` repairs the profile-photo Storage policies, migration `0008` adds member messaging, and migration `0009` adds Unit roles to the admin roster view.
 
 ## Supabase Auth Settings
 
@@ -23,6 +26,8 @@ In **Authentication → URL Configuration**:
 - Add `http://localhost:4200/auth/callback` to **Redirect URLs** for local development.
 - Add `https://YOUR-APP-DOMAIN/auth/callback` for the deployed app.
 - Keep the Email provider enabled. Email confirmation can remain enabled; after confirmation, members return to the invitation that started signup.
+
+Invite signup sets the confirmation redirect to the origin where signup began. If signup is started at `http://localhost:4200`, the confirmation link returns to localhost; this is expected for local testing. For real members, create and open invitation links from the deployed HTTPS app, set that deployed origin as the Supabase **Site URL**, and allow its `/auth/callback` redirect above. Changing these settings does not rewrite emails already sent; use a fresh confirmation/invitation flow after correcting the settings.
 
 ## Edge Functions
 
@@ -62,3 +67,7 @@ The selected Unit's leader reviews the application in **Unit admin**. Approval g
 If an applicant opts into public listing, their approved profile photo and fields explicitly set to **Anyone** can appear in anonymous search. Otherwise their profile remains private to the community and the member's own visibility settings. Existing profiles stay hidden by default after migration; each member can open **My profile**, enable **Show my profile in public search**, choose **Anyone** only for fields they want public, and save. Profile photo upload also requires public listing and Photo visibility set to Anyone because the image URL is public. Community and Unit approval verify membership, not professional skill.
 
 Community administrators should assign a verified membership as a Unit leader from **Admin → Assign a Unit leader** before expecting that leader to access **Unit admin**. New pending applications appear in the Unit dashboard and trigger an in-app live notification while the dashboard is open.
+
+## Member messaging
+
+Run migration `0008_member_messaging.sql` after `0007`. Members can request one-to-one chats only with members in their community who share a verified Unit or Home Cell; recipients must accept before messages can be sent. Requests are limited to 10 outstanding per sender. Messages are text-only, limited to 2,000 characters, stored in Postgres, and streamed only for the conversation currently open. Blocking prevents new requests and messages. Reports are visible to community administrators. This is access-controlled chat, not end-to-end encrypted messaging: Supabase and authorized project operators can access stored message content. Messages have no automatic expiry or self-service deletion in this release, so set a retention policy before production use.

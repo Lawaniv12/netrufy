@@ -27,6 +27,7 @@ interface UnitMember {
   phone: string;
   headline: string | null;
   since: string | null;
+  unit_role: 'member' | 'leader';
 }
 
 type UnitAdminTab = 'applications' | 'members';

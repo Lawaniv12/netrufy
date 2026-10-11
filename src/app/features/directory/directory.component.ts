@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { ProfileLink, PublicDirectoryProfile } from '../../core/models/models';
 
@@ -20,6 +20,7 @@ type ExploreView = 'people' | 'services' | 'skills';
 export class DirectoryComponent {
   private readonly supabase = inject(SupabaseService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly demoMode = false;
 
   readonly people = signal<PublicDirectoryProfile[]>([]);
@@ -33,6 +34,8 @@ export class DirectoryComponent {
   readonly detailsLoading = signal(false);
   readonly contactPhone = signal<string | null>(null);
   readonly contactMessage = signal<string | null>(null);
+  readonly messageRequestBusy = signal(false);
+  readonly messageRequestMessage = signal<string | null>(null);
 
   constructor() {
     this.search.set(this.route.snapshot.queryParamMap.get('q') ?? '');
@@ -96,6 +99,7 @@ export class DirectoryComponent {
     this.selectedLinks.set([]);
     this.contactPhone.set(null);
     this.contactMessage.set(null);
+    this.messageRequestMessage.set(null);
     this.detailsLoading.set(true);
     const { data, error } = await this.supabase.client.from('public_profile_links')
       .select('id, profile_id, kind, url').eq('profile_id', profile.id);
@@ -124,8 +128,23 @@ export class DirectoryComponent {
     this.contactPhone.set(data as string);
   }
 
+  async requestMessage(profileId: string) {
+    this.messageRequestMessage.set(null);
+    this.messageRequestBusy.set(true);
+    const { data, error } = await this.supabase.client.rpc('request_direct_message', { target_profile: profileId });
+    this.messageRequestBusy.set(false);
+    if (error) {
+      this.messageRequestMessage.set(error.message);
+      return;
+    }
+    await this.router.navigate(['/messages'], { queryParams: { conversation: data } });
+  }
+
   get isAuthed() {
     return this.supabase.isAuthed();
+  }
+  canStartChat(profileId: string) {
+    return this.isAuthed && this.supabase.profile()?.role === 'member' && this.supabase.profile()?.id !== profileId;
   }
   profileLinkLabel(kind: ProfileLink['kind']) {
     return ({ portfolio: 'Portfolio', linkedin: 'LinkedIn', github: 'GitHub', website: 'Website', other: 'Other link' })[kind];

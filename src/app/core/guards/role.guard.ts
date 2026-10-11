@@ -24,3 +24,10 @@ export const unitManagerGuard: CanActivateFn = async () => {
     .eq('profile_id', profile.id).eq('unit_role', 'leader').eq('status', 'verified');
   return data?.length ? true : router.createUrlTree(['/directory']);
 };
+
+export const memberGuard: CanActivateFn = async () => {
+  const supabase = inject(SupabaseService);
+  const router = inject(Router);
+  await supabase.waitForInitialization();
+  return supabase.profile()?.role === 'member' ? true : router.createUrlTree(['/directory']);
+};

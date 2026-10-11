@@ -1,0 +1,155 @@
+<main class="mx-auto min-h-[calc(100vh-72px)] w-full max-w-[1200px] px-4 py-6 text-netrust-ink sm:px-6 sm:py-8">
+  <header class="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-netrust-line pb-5">
+    <div>
+      <h1 class="font-display text-3xl">Messages</h1>
+      <p class="mt-1 text-sm text-netrust-muted">Private chats with verified community members.</p>
+    </div>
+    <p class="text-xs text-netrust-muted">Message requests need your approval.</p>
+  </header>
+
+  @if (error()) { <p role="alert" class="mb-4 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{{ error() }}</p> }
+  @if (status()) { <p role="status" class="mb-4 border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{{ status() }}</p> }
+
+  <div class="messages-layout grid min-h-[65vh] overflow-hidden border border-netrust-line bg-white md:grid-cols-[300px_minmax(0,1fr)]">
+    <aside class="inbox-panel border-b border-netrust-line md:border-b-0 md:border-r" [class.mobile-hidden]="selectedId() !== null" aria-label="Message inbox">
+      @if (loading()) {
+        <p class="p-5 text-sm text-netrust-muted">Loading messages…</p>
+      } @else if (!error()) {
+        @if (incomingRequests.length) {
+          <section>
+            <h2 class="border-b border-netrust-line bg-netrust-paper px-4 py-3 text-xs font-bold">Requests for you <span class="ml-1 text-netrust-muted">{{ incomingRequests.length }}</span></h2>
+            <ul class="m-0 list-none p-0">
+              @for (conversation of incomingRequests; track conversation.id) {
+                <li class="border-b border-netrust-line" [class.inbox-selected]="selectedId() === conversation.id">
+                  <button type="button" class="inbox-item" (click)="openConversation(conversation)">
+                    <span class="avatar">{{ initials(conversation.counterpart_name) }}</span>
+                    <span class="min-w-0 flex-1 text-left"><strong class="block truncate text-sm">{{ conversation.counterpart_name }}</strong><span class="mt-1 block text-xs text-netrust-muted">Wants to start a chat</span></span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (acceptedConversations.length) {
+          <section>
+            <h2 class="border-b border-netrust-line bg-netrust-paper px-4 py-3 text-xs font-bold">Chats</h2>
+            <ul class="m-0 list-none p-0">
+              @for (conversation of acceptedConversations; track conversation.id) {
+                <li class="border-b border-netrust-line" [class.inbox-selected]="selectedId() === conversation.id">
+                  <button type="button" class="inbox-item" (click)="openConversation(conversation)">
+                    @if (conversation.counterpart_photo_url) {
+                      <img class="avatar object-cover" [src]="conversation.counterpart_photo_url" alt="" />
+                    } @else { <span class="avatar">{{ initials(conversation.counterpart_name) }}</span> }
+                    <span class="min-w-0 flex-1 text-left">
+                      <strong class="block truncate text-sm">{{ conversation.counterpart_name }}</strong>
+                      <span class="mt-1 block truncate text-xs text-netrust-muted">{{ conversation.last_message || 'No messages yet' }}</span>
+                    </span>
+                    @if (conversation.unread_count) { <span class="unread-count">{{ conversation.unread_count }}</span> }
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (outgoingRequests.length) {
+          <section>
+            <h2 class="border-b border-netrust-line bg-netrust-paper px-4 py-3 text-xs font-bold">Requests sent</h2>
+            <ul class="m-0 list-none p-0">
+              @for (conversation of outgoingRequests; track conversation.id) {
+                <li class="border-b border-netrust-line">
+                  <button type="button" class="inbox-item" (click)="openConversation(conversation)">
+                    <span class="avatar">{{ initials(conversation.counterpart_name) }}</span>
+                    <span class="min-w-0 flex-1 text-left"><strong class="block truncate text-sm">{{ conversation.counterpart_name }}</strong><span class="mt-1 block text-xs text-netrust-muted">Waiting for a response</span></span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (!conversations().length) {
+          <div class="px-5 py-10 text-center">
+            <h2 class="font-display text-xl">Your inbox is clear</h2>
+            <p class="mt-2 text-sm text-netrust-muted">Start a request from a member’s public profile.</p>
+          </div>
+        }
+      }
+    </aside>
+
+    <section class="thread-panel flex min-w-0 flex-col" [class.mobile-hidden]="selectedId() === null" aria-label="Conversation">
+      @if (selectedConversation; as conversation) {
+        <header class="flex flex-wrap items-center gap-3 border-b border-netrust-line px-4 py-3 sm:px-6">
+          <button type="button" class="back-button md:hidden" aria-label="Back to inbox" (click)="backToInbox()">←</button>
+          @if (conversation.counterpart_photo_url) {
+            <img class="avatar object-cover" [src]="conversation.counterpart_photo_url" alt="" />
+          } @else { <span class="avatar">{{ initials(conversation.counterpart_name) }}</span> }
+          <div class="min-w-0 flex-1"><h2 class="truncate text-sm font-bold">{{ conversation.counterpart_name }}</h2><p class="text-xs text-netrust-muted">{{ conversation.status === 'accepted' ? 'Community member' : 'Message request' }}</p></div>
+          <button type="button" class="quiet-action" (click)="toggleBlock(conversation)">{{ conversation.blocked_by_me ? 'Unblock' : 'Block' }}</button>
+          <button type="button" class="quiet-action" (click)="reportOpen.set(!reportOpen())">Report</button>
+        </header>
+
+        @if (reportOpen()) {
+          <form class="grid gap-3 border-b border-netrust-line bg-red-50/50 p-4 sm:grid-cols-[160px_1fr_auto] sm:items-end" (ngSubmit)="reportConversation(conversation)">
+            <label class="flex flex-col gap-1 text-xs font-bold">Reason
+              <select name="reportReason" [(ngModel)]="reportReason" class="!min-h-10 !bg-white !text-xs"><option value="spam">Spam</option><option value="harassment">Harassment</option><option value="unsafe">Unsafe content</option><option value="other">Other</option></select>
+            </label>
+            <label class="flex flex-col gap-1 text-xs font-bold">Details <span class="font-normal text-netrust-muted">Optional</span>
+              <input name="reportDetails" [(ngModel)]="reportDetails" maxlength="1000" class="!min-h-10 !bg-white !text-xs" />
+            </label>
+            <button type="submit" class="!min-h-10 !bg-red-800 !px-3 !text-xs">Send report</button>
+          </form>
+        }
+
+        @if (conversation.status === 'pending') {
+          <div class="border-b border-netrust-line bg-netrust-paper px-5 py-8 sm:px-8">
+            @if (conversation.blocked_by_me || conversation.blocked_by_them) {
+              <h3 class="font-display text-xl">Messaging is blocked</h3>
+              <p class="mt-2 text-sm text-netrust-muted">Unblock this member before accepting or continuing this request.</p>
+            } @else if (conversation.recipient_id === currentProfileId) {
+              <h3 class="font-display text-xl">Message request</h3>
+              <p class="mt-2 max-w-xl text-sm leading-6 text-netrust-muted">Accept to open a private chat. Until then, messages cannot be sent.</p>
+              <div class="mt-4 flex flex-wrap gap-2"><button type="button" (click)="respondToRequest(conversation, true)">Accept request</button><button type="button" class="!border-netrust-line !bg-white !text-netrust-ink" (click)="respondToRequest(conversation, false)">Decline</button></div>
+            } @else {
+              <h3 class="font-display text-xl">Request sent</h3><p class="mt-2 text-sm text-netrust-muted">Chat opens if {{ conversation.counterpart_name }} accepts.</p>
+              <button type="button" class="mt-4 !border-netrust-line !bg-white !text-netrust-ink" (click)="cancelRequest(conversation)">Cancel request</button>
+            }
+          </div>
+        } @else if (conversation.blocked_by_them) {
+          <p class="m-auto max-w-sm px-6 py-10 text-center text-sm text-netrust-muted">Messaging is unavailable because this member has blocked you.</p>
+        } @else if (conversation.blocked_by_me) {
+          <p class="m-auto max-w-sm px-6 py-10 text-center text-sm text-netrust-muted">You have blocked this member. Unblock them to resume messaging.</p>
+        } @else {
+          <div class="flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-6" aria-live="polite" aria-label="Messages">
+            @if (hasOlderMessages()) { <div class="text-center"><button type="button" class="!min-h-9 !w-auto !border-netrust-line !bg-white !px-3 !py-1.5 !text-xs !text-netrust-green" (click)="loadOlderMessages()">Load older messages</button></div> }
+            @if (loadingMessages()) { <p class="text-center text-xs text-netrust-muted">Loading conversation…</p> }
+            @for (message of messages(); track message.id) {
+              <article class="message-row" [class.message-mine]="message.sender_id === currentProfileId">
+                <div class="message-bubble" [class.message-bubble-mine]="message.sender_id === currentProfileId">
+                  <p class="whitespace-pre-wrap break-words text-sm leading-5">{{ message.body }}</p>
+                  <time class="mt-1 block text-right text-[10px] opacity-70" [attr.datetime]="message.created_at">{{ messageTime(message.created_at) }}</time>
+                </div>
+              </article>
+            } @empty {
+              @if (!loadingMessages()) { <p class="m-auto max-w-sm py-12 text-center text-sm text-netrust-muted">No messages yet. Say hello to start the conversation.</p> }
+            }
+          </div>
+          <form class="border-t border-netrust-line p-3 sm:p-4" (ngSubmit)="sendMessage()">
+            <label class="sr-only" for="message-draft">Write a message</label>
+            <div class="flex items-end gap-2">
+              <textarea id="message-draft" name="draft" [ngModel]="draft()" (ngModelChange)="draft.set($event)" maxlength="2000" rows="2" placeholder="Write a message…" class="!min-h-12 flex-1 resize-none !text-sm"></textarea>
+              <button type="submit" [disabled]="sending() || !draft().trim() || draft().length > 2000" class="!min-h-12 !w-auto !px-4">{{ sending() ? 'Sending…' : 'Send' }}</button>
+            </div>
+            <p class="mt-1 text-right text-[10px] text-netrust-muted">{{ draft().length }}/2000</p>
+          </form>
+        }
+      } @else {
+        <div class="m-auto max-w-sm px-6 py-12 text-center">
+          <h2 class="font-display text-2xl">Select a conversation</h2>
+          <p class="mt-2 text-sm text-netrust-muted">Your accepted chats and message requests appear here.</p>
+        </div>
+      }
+    </section>
+  </div>
+</main>

@@ -78,12 +78,49 @@ export interface MemberReference {
   recipient_id: string;
   requester_name: string;
   recipient_name: string;
-  status: 'pending' | 'accepted' | 'declined';
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
   relationship: string | null;
   years_known: number | null;
   statement: string | null;
   created_at: string;
   responded_at: string | null;
+}
+
+export interface DirectConversation {
+  id: string;
+  community_id: string;
+  requester_id: string;
+  recipient_id: string;
+  status: 'pending' | 'accepted' | 'declined';
+  counterpart_id: string;
+  counterpart_name: string;
+  counterpart_photo_url: string | null;
+  last_message: string | null;
+  last_message_at: string | null;
+  unread_count: number;
+  blocked_by_me: boolean;
+  blocked_by_them: boolean;
+}
+
+export interface DirectMessage {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface DirectMessageReport {
+  id: string;
+  conversation_id: string;
+  reporter_id: string;
+  reporter_name: string;
+  reported_member_name: string;
+  message_body: string | null;
+  reason: 'spam' | 'harassment' | 'unsafe' | 'other';
+  details: string | null;
+  status: 'open' | 'reviewed' | 'actioned' | 'dismissed';
+  created_at: string;
 }
 
 export interface MyProfile {

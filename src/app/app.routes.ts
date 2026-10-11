@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard, unitManagerGuard } from './core/guards/role.guard';
+import { adminGuard, memberGuard, unitManagerGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -48,6 +48,11 @@ export const routes: Routes = [
     path: 'trust',
     canActivate: [authGuard],
     loadComponent: () => import('./features/trust/trust.component').then((m) => m.TrustComponent),
+  },
+  {
+    path: 'messages',
+    canActivate: [authGuard, memberGuard],
+    loadComponent: () => import('./features/messages/messages.component').then((m) => m.MessagesComponent),
   },
   {
     path: 'admin',

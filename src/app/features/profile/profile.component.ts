@@ -122,10 +122,10 @@ export class ProfileComponent {
         contentType: 'image/jpeg',
         upsert: true,
       });
-      if (uploadError) throw new Error(uploadError.message);
+      if (uploadError) throw new Error(`Photo storage rejected the upload: ${uploadError.message}`);
       const photoUrl = this.supabase.client.storage.from('member-photos').getPublicUrl(path).data.publicUrl;
       const { error } = await this.supabase.client.from('profiles').update({ photo_url: photoUrl }).eq('id', p.id);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(`Photo uploaded, but saving its profile URL failed: ${error.message}`);
       this.profile.set({ ...p, photo_url: photoUrl });
       await this.supabase.refreshProfile();
     } catch (error) {

@@ -210,12 +210,17 @@
               </div>
               @if (contactPhone()) {
                 <a class="inline-flex min-h-10 items-center bg-emerald-700 px-4 text-xs font-bold text-white no-underline hover:bg-emerald-800" [href]="waLink(contactPhone()!, selected.full_name)" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
-              } @else if (isAuthed) {
-                <button type="button" (click)="revealProfileContact(selected.id)" class="!min-h-10 !w-auto !px-4 text-xs">Reveal contact</button>
+              }
+              @if (canStartChat(selected.id)) {
+                <button type="button" (click)="requestMessage(selected.id)" [disabled]="messageRequestBusy()" class="!min-h-10 !w-auto !px-4 text-xs">{{ messageRequestBusy() ? 'Sending…' : 'Request chat' }}</button>
+              }
+              @if (isAuthed) {
+                <button type="button" (click)="revealProfileContact(selected.id)" class="!min-h-10 !w-auto !border-netrust-line !bg-white !px-4 !text-xs !text-netrust-green">Reveal contact</button>
               } @else {
-                <a routerLink="/login" [queryParams]="{ returnTo: '/directory' }" class="text-xs font-bold text-netrust-green hover:underline">Sign in to request contact</a>
+                <a routerLink="/login" [queryParams]="{ returnTo: '/directory' }" class="text-xs font-bold text-netrust-green hover:underline">Sign in to contact members</a>
               }
             </div>
+            @if (messageRequestMessage()) { <p role="alert" class="mt-3 text-xs text-red-700">{{ messageRequestMessage() }}</p> }
             @if (contactMessage()) { <p role="status" class="mt-2 text-xs text-netrust-muted">{{ contactMessage() }}</p> }
           </section>
           <p class="mt-6 border-t border-netrust-line pt-4 text-[11px] text-netrust-muted">Community and group verification confirms membership only. It does not certify professional ability or guarantee service quality.</p>

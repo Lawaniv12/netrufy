@@ -2,9 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../core/services/supabase.service';
-import { CommunityGroup } from '../../core/models/models';
+import { CommunityGroup, DirectMessageReport } from '../../core/models/models';
 
-type AdminTab = 'invites' | 'groups';
+type AdminTab = 'invites' | 'groups' | 'reports';
 
 /**
  * Community group setup: Units represent departments; Home Cells are a separate
@@ -22,6 +22,7 @@ export class AdminComponent {
   readonly groups = signal<CommunityGroup[]>([]);
   readonly communityName = signal('Community');
   readonly members = signal<{ id: string; full_name: string }[]>([]);
+  readonly messageReports = signal<DirectMessageReport[]>([]);
   readonly groupName = signal('');
   readonly groupKind = signal<'unit' | 'home_cell'>('unit');
   readonly leaderGroupId = signal('');
@@ -50,6 +51,20 @@ export class AdminComponent {
     this.groups.set((groups ?? []) as CommunityGroup[]);
     this.members.set(members ?? []);
     this.communityName.set(community?.name ?? 'Community');
+  }
+
+  async loadMessageReports() {
+    const { data, error } = await this.supabase.client.rpc('community_direct_message_reports');
+    if (error) { this.error.set(error.message); return; }
+    this.messageReports.set((data ?? []) as DirectMessageReport[]);
+  }
+
+  async updateMessageReport(report: DirectMessageReport, status: DirectMessageReport['status']) {
+    this.error.set(null);
+    const { error } = await this.supabase.client.from('direct_message_reports')
+      .update({ status }).eq('id', report.id);
+    if (error) { this.error.set(error.message); return; }
+    await this.loadMessageReports();
   }
 
   async createGroup() {
