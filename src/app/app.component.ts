@@ -74,6 +74,10 @@ export class AppComponent {
     return this.router.url.startsWith('/login');
   }
 
+  protected isDashboardPage() {
+    return this.router.url.startsWith('/admin') || this.router.url.startsWith('/unit-admin');
+  }
+
   protected async signOut() {
     this.closeMobileMenu();
     this.clearInactivityTimer();

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { environment } from '../../../../environments/environment';
 
 type Step = 'sign-in' | 'forgot' | 'sent';
 
@@ -48,7 +49,7 @@ export class LoginComponent {
     this.error.set(null);
     this.sentReset.set(false);
     this.busy.set(true);
-    const redirectTo = `${globalThis.location.origin}/auth/callback?flow=reset`;
+    const redirectTo = `${environment.appUrl ?? globalThis.location.origin}/auth/callback?flow=reset`;
     const { error } = await this.supabase.sendPasswordReset(this.email().trim(), redirectTo);
     this.busy.set(false);
     if (error) { this.error.set(error.message); return; }

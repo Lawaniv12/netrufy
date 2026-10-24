@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Invitees create an email/password account, then bind their community profile
@@ -73,7 +74,7 @@ export class RedeemInviteComponent {
     if (this.password() !== this.confirmPassword()) { this.error.set('The passwords do not match.'); return; }
     this.busy.set(true);
     const next = `/invite/${this.token}`;
-    const redirectTo = `${globalThis.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    const redirectTo = `${environment.appUrl ?? globalThis.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     if (this.approvedEmail() && this.email().trim().toLowerCase() !== this.approvedEmail()!.toLowerCase()) {
       this.error.set('Use the email address approved by your Unit administrator.');
       return;

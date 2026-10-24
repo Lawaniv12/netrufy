@@ -1,80 +1,147 @@
-<main class="mx-auto min-h-screen w-full max-w-[1160px] px-5 py-8 text-netrust-ink sm:px-6 sm:py-10">
-  <header class="mb-7 border-b border-netrust-line pb-6">
-    <p class="text-[10px] font-extrabold tracking-[0.15em] text-netrust-blue">UNIT LEADERSHIP</p>
-    <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 class="font-display text-4xl">Unit dashboard</h1><p class="mt-2 text-sm text-netrust-muted">Review applicants and keep your member roster current.</p></div>
-      <p class="text-xs text-netrust-muted"><strong class="text-netrust-ink">{{ members().length }}</strong> active members</p>
-    </div>
-  </header>
+﻿<app-dashboard-shell
+  [title]="'Unit dashboard'"
+  [subtitle]="'Review applicants, manage the roster, and maintain trust within your Unit.'"
+  [badge]="'Unit admin'"
+  [communityName]="'Unit workspace'"
+  [userName]="supabase.profile()?.full_name ?? 'Unit admin'"
+  [userRole]="supabase.profile()?.role ?? 'community_admin'"
+  [userInitials]="getUserInitials(supabase.profile()?.full_name ?? 'Unit admin')"
+  [navItems]="navItems"
+>
+  @if (status()) {
+    <p role="status" class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{{ status() }}</p>
+  }
+  @if (error()) {
+    <p role="alert" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{{ error() }}</p>
+  }
 
-  @if (status()) { <p role="status" class="mb-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{{ status() }}</p> }
-  @if (error()) { <p role="alert" class="mb-4 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ error() }}</p> }
   @if (inviteUrl()) {
-    <section class="mb-6 border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
-      <p class="text-sm font-bold text-emerald-950">Applicant approved</p>
-      <p class="mt-1 text-xs text-emerald-900">Copy and send this single-use signup link to them.</p>
-      <input class="mt-3 min-h-11 w-full border border-emerald-200 bg-white px-3 text-xs" [value]="inviteUrl()!" readonly aria-label="Signup invitation link" />
-      <button type="button" class="mt-3" (click)="copyInvite()">Copy signup link</button>
+    <section class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-[0_10px_25px_rgba(15,23,42,0.04)] sm:p-5">
+      <p class="text-sm font-bold text-emerald-900">Applicant approved</p>
+      <p class="mt-1 text-xs text-emerald-800">Copy and send this single-use signup link to the approved member.</p>
+      <input class="mt-3 min-h-11 w-full rounded-lg border border-emerald-200 bg-white px-3 text-xs text-slate-700" [value]="inviteUrl()!" readonly aria-label="Signup invitation link" />
+      <button type="button" class="mt-3 !w-auto" (click)="copyInvite()">Copy signup link</button>
     </section>
   }
 
-  <nav class="mb-5 flex border-b border-netrust-line" aria-label="Unit dashboard views">
-    <button type="button" (click)="activeTab.set('applications'); search.set('')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'applications'" [class.!bg-transparent]="activeTab() !== 'applications'" [class.!text-netrust-muted]="activeTab() !== 'applications'">Applications <span class="ml-1 text-xs">{{ applications().length }}</span></button>
-    <button type="button" (click)="activeTab.set('members'); search.set('')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'members'" [class.!bg-transparent]="activeTab() !== 'members'" [class.!text-netrust-muted]="activeTab() !== 'members'">Members <span class="ml-1 text-xs">{{ members().length }}</span></button>
-  </nav>
+  <div class="mb-5 flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+    <button type="button" (click)="setActiveTab('applications')" [attr.aria-pressed]="activeTab() === 'applications'" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors" [class.bg-[#275b43]]="activeTab() === 'applications'" [class.text-white]="activeTab() === 'applications'" [class.bg-white]="activeTab() !== 'applications'" [class.text-slate-600]="activeTab() !== 'applications'">
+      Applications <span class="ml-1 text-xs">{{ applications().length }}</span>
+    </button>
+    <button type="button" (click)="setActiveTab('members')" [attr.aria-pressed]="activeTab() === 'members'" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors" [class.bg-[#275b43]]="activeTab() === 'members'" [class.text-white]="activeTab() === 'members'" [class.bg-white]="activeTab() !== 'members'" [class.text-slate-600]="activeTab() !== 'members'">
+      Members <span class="ml-1 text-xs">{{ members().length }}</span>
+    </button>
+  </div>
 
-  @if (loading()) {
-    <p class="py-8 text-sm text-netrust-muted">Loading Unit dashboard…</p>
-  } @else {
-    <label class="search-control mb-5 flex min-h-11 max-w-xl border border-netrust-line bg-white focus-within:border-netrust-blue">
-      <svg class="h-4 w-4 shrink-0 text-netrust-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-      <input class="!min-h-0 !w-0 !flex-1 !border-0 !p-0 !text-sm !shadow-none focus:!ring-0" type="search" [(ngModel)]="search" [placeholder]="activeTab() === 'applications' ? 'Search applicants by name, email or role' : 'Search members by name, phone or role'" aria-label="Search this Unit list" />
-    </label>
-
-    @if (activeTab() === 'applications') {
-      @if (!filteredApplications.length) {
-        <p class="border-y border-netrust-line py-8 text-sm text-netrust-muted">{{ applications().length ? 'No applications match your search.' : 'No applications are waiting for review.' }}</p>
-      } @else {
-        <ul class="grid gap-4 p-0 lg:grid-cols-2">
-          @for (application of filteredApplications; track application.id) {
-            <li class="flex gap-4 border border-netrust-line bg-white p-4 sm:p-5">
-              @if (application.photo_url) { <img class="h-16 w-16 shrink-0 rounded-full border border-netrust-line object-cover sm:h-20 sm:w-20" [src]="application.photo_url" [alt]="'Applicant photo: ' + application.full_name" /> }
-              <div class="min-w-0 flex-1">
-                <p class="text-[10px] font-bold uppercase tracking-wide text-netrust-blue">{{ application.unit_name }}</p>
-                <h2 class="mt-1 text-base font-extrabold">{{ application.full_name }}</h2>
-                @if (application.headline) { <p class="mt-0.5 text-sm text-netrust-muted">{{ application.headline }}</p> }
-                <p class="mt-2 break-all text-xs text-netrust-muted">{{ application.email }} · {{ application.phone }}</p>
-                @if (application.bio) { <p class="mt-3 text-sm leading-5">{{ application.bio }}</p> }
-                @if (application.skills.length) { <p class="mt-2 text-xs text-netrust-muted"><strong>Skills:</strong> {{ application.skills.join(', ') }}</p> }
-                @if (application.services.length) { <p class="mt-1 text-xs text-netrust-muted"><strong>Services:</strong> {{ application.services.join(', ') }}</p> }
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button type="button" (click)="review(application, 'approve')" [disabled]="processingId() === application.id">{{ processingId() === application.id ? 'Working…' : 'Approve & invite' }}</button>
-                  <button type="button" (click)="review(application, 'reject')" [disabled]="processingId() === application.id" class="!border-red-700 !bg-white !text-red-800 hover:!bg-red-50">Reject</button>
-                </div>
-              </div>
-            </li>
-          }
-        </ul>
-      }
-    } @else {
-      <div class="overflow-x-auto border border-netrust-line bg-white">
-        <table class="w-full min-w-[720px] border-collapse text-left text-sm">
-          <thead class="bg-netrust-paper text-xs text-netrust-muted"><tr><th class="p-3">Name</th><th class="p-3">Unit</th><th class="p-3">Access</th><th class="p-3">Phone</th><th class="p-3">Action</th></tr></thead>
-          <tbody>
-            @for (member of filteredMembers; track member.profile_id + member.unit_id) {
-              <tr class="border-t border-netrust-line">
-                <td class="p-3"><strong>{{ member.full_name }}</strong>@if (member.headline) { <span class="block text-xs text-netrust-muted">{{ member.headline }}</span> }</td>
-                <td class="p-3">{{ member.unit_name }}</td>
-                <td class="p-3"><span class="inline-flex rounded-sm px-2 py-1 text-xs font-semibold" [class.bg-emerald-50]="member.unit_role === 'leader'" [class.text-emerald-900]="member.unit_role === 'leader'" [class.bg-netrust-paper]="member.unit_role !== 'leader'">{{ member.unit_role === 'leader' ? 'Unit leader' : 'Member' }}</span></td>
-                <td class="p-3">{{ member.phone }}</td>
-                <td class="p-3"><button type="button" (click)="deactivateMember(member)" class="!min-h-8 !border-0 !bg-transparent !px-1 !py-1 text-xs !text-red-800 !shadow-none hover:!underline">Remove from Unit</button></td>
-              </tr>
-            } @empty {
-              <tr><td colspan="5" class="p-5 text-center text-sm text-netrust-muted">No members match your search.</td></tr>
-            }
-          </tbody>
-        </table>
-      </div>
+  <div id="overview" class="mb-6 grid scroll-mt-48 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    @for (stat of summaryStats(); track stat.label) {
+      <app-stat-card [label]="stat.label" [value]="stat.value" [description]="stat.description" [delta]="stat.delta" [icon]="stat.icon" [tone]="stat.tone" />
     }
-  }
-</main>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
+      <span id="applications" class="block scroll-mt-48"></span>
+      <span id="roster" class="block scroll-mt-48"></span>
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">Applicants</p>
+          <h2 class="mt-1 text-xl font-semibold tracking-tight text-slate-900">Review queue</h2>
+        </div>
+        <span class="rounded-full bg-[#edf3ef] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#275b43]">{{ applications().length }} total</span>
+      </div>
+
+      @if (loading()) {
+        <p class="py-8 text-sm text-slate-500">Loading Unit dashboard…</p>
+      } @else {
+        <label class="search-control mb-5 flex min-h-11 max-w-xl items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-[#275b43] focus-within:ring-2 focus-within:ring-[#eaf1e9]">
+          <svg class="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+          <input class="!min-h-0 !w-0 !flex-1 !border-0 !bg-transparent !p-0 !text-sm !text-slate-700 !shadow-none focus:!ring-0" type="search" [(ngModel)]="search" [placeholder]="activeTab() === 'applications' ? 'Search applicants by name, email or headline' : 'Search members by name or phone'" aria-label="Search this Unit list" />
+        </label>
+
+        @if (activeTab() === 'applications') {
+          @if (!filteredApplications.length) {
+            <app-empty-state title="No applicants to review" message="Your queue is clear for now." />
+          } @else {
+            <div class="space-y-4">
+              @for (application of filteredApplications; track application.id) {
+                <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div class="flex flex-col gap-4 md:flex-row">
+                    @if (application.photo_url) {
+                      <img class="h-20 w-20 shrink-0 rounded-full border border-slate-200 object-cover" [src]="application.photo_url" [alt]="'Applicant photo: ' + application.full_name" />
+                    }
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#2459e8]">{{ application.unit_name }}</p>
+                          <h3 class="mt-1 text-lg font-semibold text-slate-900">{{ application.full_name }}</h3>
+                        </div>
+                        <span class="inline-flex w-fit items-center rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">New</span>
+                      </div>
+
+                      @if (application.headline) {
+                        <p class="mt-2 text-sm text-slate-500">{{ application.headline }}</p>
+                      }
+                      <p class="mt-2 break-all text-xs text-slate-500">{{ application.email }} · {{ application.phone }}</p>
+                      @if (application.bio) {
+                        <p class="mt-3 text-sm leading-6 text-slate-600">{{ application.bio }}</p>
+                      }
+                      @if (application.skills.length) {
+                        <p class="mt-2 text-xs text-slate-500"><span class="font-semibold text-slate-700">Skills:</span> {{ application.skills.join(', ') }}</p>
+                      }
+                      @if (application.services.length) {
+                        <p class="mt-1 text-xs text-slate-500"><span class="font-semibold text-slate-700">Services:</span> {{ application.services.join(', ') }}</p>
+                      }
+                      <div class="mt-4 flex flex-wrap gap-2">
+                        <button type="button" (click)="review(application, 'approve')" [disabled]="processingId() === application.id" class="!w-auto">{{ processingId() === application.id ? 'Working…' : 'Approve & invite' }}</button>
+                        <button type="button" (click)="review(application, 'reject')" [disabled]="processingId() === application.id" class="!w-auto !border-red-700 !bg-white !text-red-800 hover:!bg-red-50">Reject</button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        } @else {
+          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table class="w-full min-w-[720px] border-collapse text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">
+                <tr>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">Unit</th>
+                  <th class="p-3">Access</th>
+                  <th class="p-3">Phone</th>
+                  <th class="p-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (member of filteredMembers; track member.profile_id + member.unit_id) {
+                  <tr class="border-t border-slate-200">
+                    <td class="p-3">
+                      <div class="font-semibold text-slate-800">{{ member.full_name }}</div>
+                      @if (member.headline) { <div class="mt-1 text-xs text-slate-500">{{ member.headline }}</div> }
+                    </td>
+                    <td class="p-3">{{ member.unit_name }}</td>
+                    <td class="p-3">
+                      <span class="inline-flex rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em]" [class.bg-emerald-50]="member.unit_role === 'leader'" [class.text-emerald-900]="member.unit_role === 'leader'" [class.bg-slate-100]="member.unit_role !== 'leader'" [class.text-slate-700]="member.unit_role !== 'leader'">
+                        {{ member.unit_role === 'leader' ? 'Leader' : 'Member' }}
+                      </span>
+                    </td>
+                    <td class="p-3">{{ member.phone }}</td>
+                    <td class="p-3">
+                      <button type="button" (click)="deactivateMember(member)" class="!w-auto !border-0 !bg-transparent !px-0 !py-0 !text-xs !text-red-700 !shadow-none hover:!underline">Remove</button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="p-5 text-center text-sm text-slate-500">No members match your search.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </section>
+
+    <app-activity-feed [items]="recentActivity()" />
+  </div>
+</app-dashboard-shell>

@@ -22,19 +22,19 @@ If earlier migrations are already applied, run only the missing later migrations
 
 In **Authentication → URL Configuration**:
 
-- Set **Site URL** to the deployed Netrufy app origin.
+- Set **Site URL** to `https://netrufy.vercel.app` (no trailing slash).
 - Add `http://localhost:4200/auth/callback` to **Redirect URLs** for local development.
-- Add `https://YOUR-APP-DOMAIN/auth/callback` for the deployed app.
+- Add `https://netrufy.vercel.app/auth/callback` to **Redirect URLs** for the deployed app.
 - Keep the Email provider enabled. Email confirmation can remain enabled; after confirmation, members return to the invitation that started signup.
 
-Invite signup sets the confirmation redirect to the origin where signup began. If signup is started at `http://localhost:4200`, the confirmation link returns to localhost; this is expected for local testing. For real members, create and open invitation links from the deployed HTTPS app, set that deployed origin as the Supabase **Site URL**, and allow its `/auth/callback` redirect above. Changing these settings does not rewrite emails already sent; use a fresh confirmation/invitation flow after correcting the settings.
+Production signup and password-reset callbacks use `https://netrufy.vercel.app`. Supabase only honors that callback when it is in **Redirect URLs**; otherwise it may fall back to the **Site URL**. Local development continues to use the current local origin. Changing these settings does not rewrite emails already sent; use a fresh confirmation/invitation flow after correcting the settings.
 
 ## Edge Functions
 
 Deploy the invite functions after setting the app's public origin:
 
 ```powershell
-supabase secrets set APP_BASE_URL=https://YOUR-APP-DOMAIN
+supabase secrets set APP_BASE_URL=https://netrufy.vercel.app APP_URL=https://netrufy.vercel.app
 supabase functions deploy create-invite
 supabase functions deploy validate-invite
 supabase functions deploy redeem-invite
@@ -53,7 +53,7 @@ supabase secrets set RESEND_API_KEY=YOUR-RESEND-KEY RESEND_FROM_EMAIL="Netrufy <
 Guarantor requests send SMS through Termii. Configure these secrets before using that feature:
 
 ```powershell
-supabase secrets set APP_URL=https://YOUR-APP-DOMAIN TERMII_API_KEY=YOUR-TERMII-KEY TERMII_SENDER_ID=YOUR-APPROVED-SENDER-ID
+supabase secrets set APP_URL=https://netrufy.vercel.app TERMII_API_KEY=YOUR-TERMII-KEY TERMII_SENDER_ID=YOUR-APPROVED-SENDER-ID
 ```
 
 For local invite links, set `APP_BASE_URL=http://localhost:4200` in the Edge Function environment instead. Do not use the local URL for production.

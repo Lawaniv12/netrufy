@@ -1,5 +1,5 @@
 @if (!isLoginPage()) {
-  <header class="topbar">
+  <header class="topbar" [class.dashboard-topbar]="isDashboardPage()">
     <nav class="topbar-inner" aria-label="Main navigation">
       <a routerLink="/directory" class="brand" aria-label="Netrufy home">
         <span class="brand-mark bg-netrust-green font-display text-white" aria-hidden="true">N</span>

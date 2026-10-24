@@ -5,6 +5,8 @@
 
 :root {
   color-scheme: light;
+  --topbar-height: 76px;
+  --dashboard-radius: 6px;
   --ink: #1e2922;
   --muted: #737c72;
   --green: #275b43;
@@ -269,6 +271,15 @@ button:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--g
   .directory-heading h1 br { display: none; }
   .directory-toolbar { align-items: flex-start; flex-direction: column; gap: 12px; }
   .search-field { width: 100%; max-width: none; }
+}
+
+@media (max-width: 640px) {
+  :root { --topbar-height: 68px; }
+}
+
+.dashboard-shell .rounded-2xl,
+.dashboard-shell .rounded-xl {
+  border-radius: var(--dashboard-radius);
 }
 
 @media (prefers-reduced-motion: reduce) {

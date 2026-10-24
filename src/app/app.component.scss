@@ -1,6 +1,7 @@
 .topbar {
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  top: 0;
+  z-index: 30;
   background: rgba(255, 255, 252, 0.94);
   border-bottom: 1px solid var(--line);
 }
@@ -14,6 +15,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+}
+
+.dashboard-topbar .topbar-inner {
+  width: 100%;
+  max-width: none;
+  padding-right: 28px;
+  padding-left: 28px;
 }
 
 .brand {
@@ -88,6 +96,7 @@
 .signed-out-links > a:first-child { color: var(--green); text-decoration: none; }
 
 @media (max-width: 640px) {
+  .dashboard-topbar .topbar-inner { width: 100%; padding-right: 16px; padding-left: 16px; }
   .topbar-inner { position: relative; width: calc(100% - 32px); min-height: 68px; gap: 12px; }
   .brand { gap: 8px; font-size: 14px; }
   .brand-mark { width: 32px; }

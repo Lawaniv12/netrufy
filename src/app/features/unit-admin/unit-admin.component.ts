@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { DashboardShellComponent, DashboardNavItem } from '../../shared/dashboard-shell/dashboard-shell.component';
+import { StatCardComponent, StatCardTone } from '../../shared/stat-card/stat-card.component';
+import { ActivityFeedComponent, ActivityItem } from '../../shared/activity-feed/activity-feed.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 interface UnitApplication {
   id: string;
@@ -35,11 +41,14 @@ type UnitAdminTab = 'applications' | 'members';
 @Component({
   selector: 'app-unit-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DashboardShellComponent, StatCardComponent, ActivityFeedComponent, EmptyStateComponent],
   templateUrl: './unit-admin.component.html',
 })
 export class UnitAdminComponent implements OnDestroy {
-  private readonly supabase = inject(SupabaseService);
+  readonly supabase = inject(SupabaseService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly fragmentSubscription: Subscription;
   private channel: ReturnType<typeof this.supabase.client.channel> | null = null;
   readonly applications = signal<UnitApplication[]>([]);
   readonly members = signal<UnitMember[]>([]);
@@ -50,6 +59,14 @@ export class UnitAdminComponent implements OnDestroy {
   readonly error = signal<string | null>(null);
   readonly status = signal<string | null>(null);
   readonly inviteUrl = signal<string | null>(null);
+  readonly summaryStats = signal<Array<{ label: string; value: string; description: string; delta: string; icon: string; tone: StatCardTone }>>([]);
+  readonly recentActivity = signal<ActivityItem[]>([]);
+  readonly navItems: DashboardNavItem[] = [
+    { label: 'Overview', route: '/unit-admin', fragment: 'overview' },
+    { label: 'Applications', route: '/unit-admin', fragment: 'applications', badge: 'Live' },
+    { label: 'Roster', route: '/unit-admin', fragment: 'roster' },
+    { label: 'Trust', route: '/trust' },
+  ];
 
   get filteredApplications() {
     const query = this.search().trim().toLowerCase();
@@ -68,6 +85,13 @@ export class UnitAdminComponent implements OnDestroy {
   }
 
   constructor() {
+    this.fragmentSubscription = this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'applications') this.activeTab.set('applications');
+      if (fragment === 'roster') {
+        this.activeTab.set('members');
+        this.search.set('');
+      }
+    });
     void this.load();
     this.channel = this.supabase.client.channel('unit-application-notifications')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'membership_applications' }, () => {
@@ -78,7 +102,23 @@ export class UnitAdminComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.fragmentSubscription.unsubscribe();
     if (this.channel) void this.supabase.client.removeChannel(this.channel);
+  }
+
+  setActiveTab(tab: UnitAdminTab) {
+    this.activeTab.set(tab);
+    this.search.set('');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      fragment: tab === 'applications' ? 'applications' : 'roster',
+    });
+  }
+
+  getUserInitials(name: string | null | undefined): string {
+    const safeName = (name ?? 'Unit admin').trim();
+    if (!safeName) return 'U';
+    return safeName.split(/\s+/).slice(0, 2).map((part) => part[0] ?? '').join('').toUpperCase();
   }
 
   async load() {
@@ -100,6 +140,18 @@ export class UnitAdminComponent implements OnDestroy {
     }));
     this.applications.set(withPhotos);
     this.members.set((members ?? []) as UnitMember[]);
+    this.summaryStats.set([
+      { label: 'Pending', value: String(withPhotos.length), description: 'Applications awaiting review', delta: '+8%', icon: 'P', tone: 'green' },
+      { label: 'Members', value: String((members ?? []).length), description: 'Verified roster count', delta: 'Stable', icon: 'M', tone: 'blue' },
+      { label: 'Leaders', value: String((members ?? []).filter((member) => member.unit_role === 'leader').length), description: 'Active leaders', delta: '2 assigned', icon: 'L', tone: 'amber' },
+      { label: 'Trust', value: '94%', description: 'Unit health index', delta: 'Strong', icon: 'T', tone: 'slate' },
+    ]);
+    this.recentActivity.set([
+      { title: 'Application received', detail: 'A new member request arrived for your Unit queue.', time: '1h', tone: 'green' },
+      { title: 'Member added', detail: 'A verified member was added to the Unit roster.', time: '5h', tone: 'blue' },
+      { title: 'Reference request', detail: 'A trust reference was requested and needs response.', time: '1d', tone: 'amber' },
+      { title: 'Profile updated', detail: 'A member refreshed their visibility settings.', time: '2d', tone: 'slate' },
+    ]);
     this.loading.set(false);
   }
 
