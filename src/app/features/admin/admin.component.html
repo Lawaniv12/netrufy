@@ -1,7 +1,7 @@
 <app-dashboard-shell
   [title]="communityName() + ' workspace'"
-  [subtitle]="'Manage governance, membership, and trust across your community.'"
-  [badge]="'Community admin'"
+  [subtitle]="'Manage groups, membership, and trust across your organization.'"
+  [badge]="'Admin workspace'"
   [communityName]="communityName()"
   [userName]="supabase.profile()?.full_name ?? 'Admin'"
   [userRole]="supabase.profile()?.role ?? 'community_admin'"

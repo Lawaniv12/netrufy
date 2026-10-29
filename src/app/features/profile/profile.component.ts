@@ -5,7 +5,7 @@ import { MyProfile, ProfileLink, Visibility } from '../../core/models/models';
 import { compressProfileImage } from '../../core/utils/image-compression';
 
 const FIELDS: Array<{ key: string; label: string }> = [
-  { key: 'listed', label: 'Show my profile to signed-in community members' },
+  { key: 'listed', label: 'Show my profile to signed-in members' },
   { key: 'photo', label: 'Profile photo' },
   { key: 'headline', label: 'Headline' },
   { key: 'bio', label: 'Bio' },

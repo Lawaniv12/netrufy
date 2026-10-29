@@ -3,8 +3,8 @@
 
   <section class="max-w-3xl border-b border-netrust-line pb-7">
     <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-blue">MEMBER-TO-MEMBER</p>
-    <h2 class="mt-1 font-display text-2xl">Community references</h2>
-    <p class="mt-2 text-sm text-netrust-muted">Request a reference from an active member who shares a verified Unit or Homecell with you. This confirms a real community relationship, not professional certification.</p>
+    <h2 class="mt-1 font-display text-2xl">Member references</h2>
+    <p class="mt-2 text-sm text-netrust-muted">Request a reference from an active member who shares a verified Unit or Homecell with you. This confirms a real group connection, not professional certification.</p>
       @if (referenceCandidatesLoading()) {
         <p role="status" class="mt-4 border-y border-netrust-line py-4 text-sm text-netrust-muted">Finding eligible members…</p>
       } @else if (referenceCandidatesError()) {
@@ -15,7 +15,7 @@
         </div>
       } @else if (referenceCandidates().length) {
       <form class="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end" (ngSubmit)="requestMemberReference()">
-        <label class="flex flex-col gap-1.5 text-xs font-bold">Choose a community member
+        <label class="flex flex-col gap-1.5 text-xs font-bold">Choose a member
           <select name="referenceMember" [(ngModel)]="selectedReferenceMemberId" required>
             <option value="">Select someone you know</option>
             @for (candidate of referenceCandidates(); track candidate.id) { <option [value]="candidate.id">{{ candidate.full_name }} · {{ candidate.shared_groups.join(', ') }}</option> }
@@ -30,7 +30,7 @@
         </div>
       }
       @if (newReferenceNotice()) {
-        <p role="status" class="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">A new member reference request arrived. <button type="button" (click)="dismissReferenceNotice()" class="ml-2 !min-h-0 !w-auto !border-0 !bg-transparent !p-0 text-xs !text-blue-900 !shadow-none">Dismiss</button></p>
+        <p role="status" class="mt-3 border border-[#d8e2f2] bg-[#edf2fb] px-3 py-2 text-xs text-[#234a93]">A new member reference request arrived. <button type="button" (click)="dismissReferenceNotice()" class="ml-2 !min-h-0 !w-auto !border-0 !bg-transparent !p-0 text-xs !text-[#234a93] !shadow-none">Dismiss</button></p>
       }
       @if (referenceStatus()) { <p role="status" class="mt-3 text-sm text-emerald-800">{{ referenceStatus() }}</p> }
       @if (referenceError()) { <p role="alert" class="mt-3 text-sm text-red-700">{{ referenceError() }}</p> }
@@ -88,7 +88,7 @@
   } @else {
     <section>
       <h2>Home Cell membership</h2>
-      <p class="muted">A Home Cell leader confirms membership. This is community evidence, not a guarantee of professional skill.</p>
+      <p class="muted">A Home Cell leader confirms membership. This is group evidence, not a guarantee of professional skill.</p>
       @if (homeCellMemberships().length) {
         <ul>
           @for (membership of homeCellMemberships(); track membership.unit_id) {

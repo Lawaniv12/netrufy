@@ -37,7 +37,7 @@ export class AuthCallbackComponent {
     }
     if (this.recovery) return;
     if (!this.supabase.profile()) {
-      this.error.set('Your account is signed in but is not connected to a community profile. Ask your community administrator for an invite.');
+      this.error.set('Your account is not linked to a member profile. Ask an administrator for an invitation.');
       return;
     }
     await this.router.navigate(['/directory']);

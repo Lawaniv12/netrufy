@@ -51,7 +51,15 @@ Deno.serve(async (req) => {
       photo_url: publicListing ? invite.invitee_photo_url : null,
       ...(visibility ? { visibility } : {}),
     });
-    if (insertErr) return json({ error: 'Could not create your profile.' }, 500);
+    if (insertErr) {
+      const duplicatePhone = insertErr.code === '23505'
+        && /phone/i.test(`${insertErr.message} ${insertErr.details ?? ''}`);
+      if (duplicatePhone) {
+        return json({ error: 'This phone number is already registered. Sign in with the existing account or ask your administrator to update the number on your invitation.' }, 409);
+      }
+      console.error('Could not create profile during invite redemption:', insertErr.code);
+      return json({ error: 'Could not create your profile.' }, 500);
+    }
 
     if (invite.unit_id) {
       const { data: group } = await admin.from('units').select('kind').eq('id', invite.unit_id).maybeSingle();

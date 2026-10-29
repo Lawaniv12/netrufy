@@ -1,12 +1,13 @@
-<main class="auth-card">
+<main class="invite-layout">
+  <section class="auth-card">
   @if (inviteValid() === null) {
     <h1>Checking your invitation…</h1>
   } @else if (!inviteValid()) {
     <h1>This invitation isn’t available</h1>
-    <p>It may have expired or already been used. Ask your community administrator for a new invitation link.</p>
+    <p>It may have expired or already been used. Ask an administrator for a new invitation link.</p>
     <a routerLink="/login">Sign in</a>
   } @else {
-  <h1>Join {{ communityName() || 'your community' }}</h1>
+  <h1>Join {{ communityName() || 'your group' }}</h1>
   @if (groupName()) { <p class="muted">You were invited to {{ groupName() }}.</p> }
 
   @if (!isAuthed) {
@@ -47,7 +48,7 @@
         <input name="fullName" [(ngModel)]="fullName" required />
       </label>
       <label>
-        Phone number (shared with community members when you choose to be contacted)
+        Phone number
         <input name="phone" [(ngModel)]="phone" placeholder="0801 234 5678" required />
       </label>
       <button type="submit" [disabled]="busy()">{{ busy() ? 'Joining…' : 'Complete setup' }}</button>
@@ -57,5 +58,33 @@
   @if (error()) {
     <p role="alert" class="error">{{ error() }}</p>
   }
+  }
+  </section>
+
+  @if (inviteValid()) {
+    <aside class="invite-activity" aria-label="Membership activity">
+      <p class="invite-activity__eyebrow">MEMBERSHIP ACTIVITY</p>
+      <h2>{{ groupName() || communityName() || 'Your group' }}</h2>
+      <div class="invite-activity__stat">
+        <strong>{{ memberCount() ?? '—' }}</strong>
+        <span>members</span>
+      </div>
+      @if (newMemberCount() !== null) {
+        <p class="invite-activity__recent">
+          <span class="invite-activity__dot" aria-hidden="true"></span>
+          {{ newMemberCount() }} {{ newMemberCount() === 1 ? 'person joined' : 'people joined' }} in the past 7 days
+        </p>
+      } @else {
+        <p class="invite-activity__recent">Recent activity is temporarily unavailable.</p>
+      }
+      @if (recentJoins().length) {
+        <ul class="invite-activity__list" aria-label="Recent member joins">
+          @for (event of recentJoins(); track event.at) {
+            <li><span class="invite-activity__dot" aria-hidden="true"></span><span>Someone joined</span><time [attr.datetime]="event.at">{{ activityTime(event.at) }}</time></li>
+          }
+        </ul>
+      }
+      <p class="invite-activity__note">A live snapshot of membership. No personal details are shown.</p>
+    </aside>
   }
 </main>

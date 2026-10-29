@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard, memberGuard, unitManagerGuard } from './core/guards/role.guard';
+import { adminGuard, messageParticipantGuard, unitManagerGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -51,7 +51,7 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
-    canActivate: [authGuard, memberGuard],
+    canActivate: [authGuard, messageParticipantGuard],
     loadComponent: () => import('./features/messages/messages.component').then((m) => m.MessagesComponent),
   },
   {

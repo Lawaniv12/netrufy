@@ -33,7 +33,15 @@ interface UnitMember {
   phone: string;
   headline: string | null;
   since: string | null;
+  joined_at: string | null;
   unit_role: 'member' | 'leader';
+}
+
+interface ApprovedApplication {
+  id: string;
+  full_name: string;
+  email: string;
+  reviewed_at: string | null;
 }
 
 type UnitAdminTab = 'applications' | 'members';
@@ -51,6 +59,7 @@ export class UnitAdminComponent implements OnDestroy {
   private readonly fragmentSubscription: Subscription;
   private channel: ReturnType<typeof this.supabase.client.channel> | null = null;
   readonly applications = signal<UnitApplication[]>([]);
+  readonly approvedApplications = signal<ApprovedApplication[]>([]);
   readonly members = signal<UnitMember[]>([]);
   readonly activeTab = signal<UnitAdminTab>('applications');
   readonly search = signal('');
@@ -124,9 +133,11 @@ export class UnitAdminComponent implements OnDestroy {
   async load() {
     this.loading.set(true);
     this.error.set(null);
-    const [{ data: applications, error: applicationError }, { data: members, error: memberError }] = await Promise.all([
+    const [{ data: applications, error: applicationError }, { data: members, error: memberError }, { data: activityApplications }, { data: approvedApplications }] = await Promise.all([
       this.supabase.client.from('unit_application_queue').select('*').order('created_at', { ascending: true }),
       this.supabase.client.from('unit_member_roster').select('*').order('full_name'),
+      this.supabase.client.from('membership_applications').select('id, full_name, status, created_at, reviewed_at').order('created_at', { ascending: false }).limit(20),
+      this.supabase.client.from('membership_applications').select('id, full_name, email, reviewed_at').eq('status', 'approved').order('reviewed_at', { ascending: false }).limit(20),
     ]);
     if (applicationError || memberError) {
       this.error.set('Could not load Unit administration data. Check that migration 0005 has been applied.');
@@ -139,19 +150,38 @@ export class UnitAdminComponent implements OnDestroy {
       return { ...application, photo_url: data?.signedUrl };
     }));
     this.applications.set(withPhotos);
-    this.members.set((members ?? []) as UnitMember[]);
+    this.approvedApplications.set((approvedApplications ?? []) as ApprovedApplication[]);
+    const resolvedMembers = (members ?? []) as UnitMember[];
+    this.members.set(resolvedMembers);
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const joinedThisMonth = resolvedMembers.filter((member) => member.joined_at && Date.parse(member.joined_at) >= monthStart.getTime()).length;
     this.summaryStats.set([
-      { label: 'Pending', value: String(withPhotos.length), description: 'Applications awaiting review', delta: '+8%', icon: 'P', tone: 'green' },
-      { label: 'Members', value: String((members ?? []).length), description: 'Verified roster count', delta: 'Stable', icon: 'M', tone: 'blue' },
-      { label: 'Leaders', value: String((members ?? []).filter((member) => member.unit_role === 'leader').length), description: 'Active leaders', delta: '2 assigned', icon: 'L', tone: 'amber' },
-      { label: 'Trust', value: '94%', description: 'Unit health index', delta: 'Strong', icon: 'T', tone: 'slate' },
+      { label: 'Pending', value: String(withPhotos.length), description: 'Applications awaiting review', delta: '', icon: 'P', tone: 'green' },
+      { label: 'Members', value: String(resolvedMembers.length), description: 'Verified roster count', delta: '', icon: 'M', tone: 'blue' },
+      { label: 'Leaders', value: String(resolvedMembers.filter((member) => member.unit_role === 'leader').length), description: 'Active leaders', delta: '', icon: 'L', tone: 'amber' },
+      { label: 'Joined this month', value: String(joinedThisMonth), description: 'New roster additions', delta: '', icon: 'N', tone: 'slate' },
     ]);
-    this.recentActivity.set([
-      { title: 'Application received', detail: 'A new member request arrived for your Unit queue.', time: '1h', tone: 'green' },
-      { title: 'Member added', detail: 'A verified member was added to the Unit roster.', time: '5h', tone: 'blue' },
-      { title: 'Reference request', detail: 'A trust reference was requested and needs response.', time: '1d', tone: 'amber' },
-      { title: 'Profile updated', detail: 'A member refreshed their visibility settings.', time: '2d', tone: 'slate' },
-    ]);
+    const activity: ActivityItem[] = [
+      ...((activityApplications ?? []) as Array<{ id: string; full_name: string; status: 'pending' | 'approved' | 'rejected'; created_at: string; reviewed_at: string | null }>).map((application) => ({
+        id: `application-${application.id}`,
+        title: application.status === 'pending' ? 'Application received' : `Application ${application.status}`,
+        detail: application.status === 'pending'
+          ? `${application.full_name} submitted an application for review.`
+          : `${application.full_name}'s application was ${application.status}.`,
+        at: application.status === 'pending' ? application.created_at : application.reviewed_at ?? application.created_at,
+        tone: 'green' as const,
+      })),
+      ...((members ?? []) as UnitMember[]).filter((member) => member.joined_at).map((member) => ({
+        id: `member-${member.profile_id}-${member.unit_id}`,
+        title: 'Member joined',
+        detail: `${member.full_name} joined ${member.unit_name}.`,
+        at: member.joined_at!,
+        tone: 'blue' as const,
+      })),
+    ];
+    this.recentActivity.set(activity.sort((first, second) => Date.parse(second.at) - Date.parse(first.at)).slice(0, 5));
     this.loading.set(false);
   }
 
@@ -185,6 +215,31 @@ export class UnitAdminComponent implements OnDestroy {
     if (error) { this.error.set(error.message); return; }
     this.status.set(`${member.full_name} is no longer listed in ${member.unit_name}.`);
     await this.load();
+  }
+
+  async reissueInvitation(application: ApprovedApplication) {
+    this.error.set(null);
+    this.status.set(null);
+    this.inviteUrl.set(null);
+    this.processingId.set(application.id);
+    const { data, error } = await this.supabase.invoke<{ ok: boolean; inviteUrl?: string }>('review-membership-application', {
+      applicationId: application.id,
+      action: 'reissue',
+    });
+    this.processingId.set(null);
+    if (error) {
+      const context = (error as Error & { context?: unknown }).context;
+      if (context instanceof Response) {
+        const body = await context.clone().json().catch(() => null) as { error?: unknown } | null;
+        this.error.set(typeof body?.error === 'string' ? body.error : error.message);
+      } else {
+        this.error.set(error.message);
+      }
+      return;
+    }
+    if (!data?.inviteUrl) { this.error.set('Could not create a new invitation link.'); return; }
+    this.inviteUrl.set(data.inviteUrl);
+    this.status.set(`A fresh invitation link is ready for ${application.full_name}. The previous link has been replaced.`);
   }
 
   async copyInvite() {

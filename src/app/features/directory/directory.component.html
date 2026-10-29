@@ -3,13 +3,13 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="mb-2 text-[10px] font-extrabold tracking-[0.16em] text-netrust-blue">SEARCH YOUR TRUSTED NETWORK</p>
-        <h1 class="font-display text-4xl font-normal leading-tight sm:text-[42px]">Find people in your community</h1>
+        <h1 class="font-display text-4xl font-normal leading-tight sm:text-[42px]">Find people in your network</h1>
         <p class="mt-2 text-sm text-netrust-muted sm:text-base">Search a profession, skill, service, or Unit. No sign-in needed.</p>
       </div>
       <a routerLink="/apply" class="mb-1 text-sm font-bold text-netrust-green hover:underline">Apply to join →</a>
     </div>
 
-    <div class="mt-6 flex min-h-12 max-w-4xl items-center gap-3 rounded-md border border-netrust-line bg-white px-4 shadow-sm focus-within:border-netrust-blue focus-within:ring-2 focus-within:ring-blue-100">
+    <div class="mt-6 flex min-h-12 max-w-4xl items-center gap-3 rounded-md border border-netrust-line bg-white px-4 shadow-sm focus-within:border-netrust-blue focus-within:ring-2 focus-within:ring-[#edf2fb]">
       <svg class="h-5 w-5 shrink-0 text-netrust-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
       <input class="!min-h-0 !w-full !border-0 !bg-transparent !p-0 !text-sm !shadow-none !outline-none focus:!ring-0" type="search" [(ngModel)]="search" placeholder="Search people, skills or services" aria-label="Search people, skills or services" />
       <span class="hidden shrink-0 text-[10px] font-bold tracking-wider text-netrust-muted sm:inline">PUBLIC PROFILES</span>
@@ -18,13 +18,13 @@
 
   <section class="py-7" aria-labelledby="explore-heading">
     <div class="mb-4 flex items-center justify-between gap-3">
-      <h2 id="explore-heading" class="font-display text-2xl">Explore your community</h2>
+      <h2 id="explore-heading" class="font-display text-2xl">Browse the directory</h2>
       <span class="hidden text-xs text-netrust-muted sm:inline">A network of people and what they can do</span>
     </div>
-    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Explore community directory">
-      <button type="button" role="tab" (click)="explore('people')" [attr.aria-selected]="activeView() === 'people'" [style.background-color]="activeView() === 'people' ? '#eaf4ed' : '#fffefa'" [style.color]="activeView() === 'people' ? '#275b43' : '#737c72'" [style.border-color]="activeView() === 'people' ? '#275b43' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">People <span class="ml-1 text-[10px] font-normal">Meet your community</span></button>
+    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Browse directory">
+      <button type="button" role="tab" (click)="explore('people')" [attr.aria-selected]="activeView() === 'people'" [style.background-color]="activeView() === 'people' ? '#eaf4ed' : '#fffefa'" [style.color]="activeView() === 'people' ? '#275b43' : '#737c72'" [style.border-color]="activeView() === 'people' ? '#275b43' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">People <span class="ml-1 text-[10px] font-normal">Meet people</span></button>
       <button type="button" role="tab" (click)="explore('services')" [attr.aria-selected]="activeView() === 'services'" [style.background-color]="activeView() === 'services' ? '#fff4df' : '#fffefa'" [style.color]="activeView() === 'services' ? '#7a4b0b' : '#737c72'" [style.border-color]="activeView() === 'services' ? '#dca94c' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">Services <span class="ml-1 text-[10px] font-normal">What members offer</span></button>
-      <button type="button" role="tab" (click)="explore('skills')" [attr.aria-selected]="activeView() === 'skills'" [style.background-color]="activeView() === 'skills' ? '#edf3ff' : '#fffefa'" [style.color]="activeView() === 'skills' ? '#2459e8' : '#737c72'" [style.border-color]="activeView() === 'skills' ? '#7799f4' : '#e3e7dd'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">Skills <span class="ml-1 text-[10px] font-normal">What members know</span></button>
+      <button type="button" role="tab" (click)="explore('skills')" [attr.aria-selected]="activeView() === 'skills'" [style.background-color]="activeView() === 'skills' ? '#edf2fb' : '#fffefa'" [style.color]="activeView() === 'skills' ? '#2857bd' : '#66736b'" [style.border-color]="activeView() === 'skills' ? '#9cb4e4' : '#dfe7e1'" class="!min-h-10 !w-full !rounded-sm !border !px-4 !py-2 !text-left !text-xs !font-bold !shadow-none sm:!w-auto sm:!text-sm">Skills <span class="ml-1 text-[10px] font-normal">What members know</span></button>
       <span class="flex w-full items-center gap-2 px-1 text-[11px] text-netrust-muted sm:w-auto sm:px-3"><span>Businesses</span><span aria-hidden="true">·</span><span>Opportunities</span><span class="text-[10px]">Coming later</span></span>
     </div>
   </section>
@@ -32,7 +32,7 @@
   <section class="border-t border-netrust-line py-7" aria-labelledby="members-heading">
     <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p class="mb-1 text-[10px] font-extrabold tracking-[0.13em] text-netrust-coral">CONNECTED BY COMMUNITY</p>
+        <p class="mb-1 text-[10px] font-extrabold tracking-[0.13em] text-netrust-coral">MEMBER DIRECTORY</p>
         <h2 id="members-heading" class="font-display text-2xl">{{ sectionTitle }}</h2>
       </div>
       <span class="text-xs text-netrust-muted" aria-live="polite">{{ filtered.length }} {{ filtered.length === 1 ? 'result' : 'results' }}</span>
@@ -45,15 +45,15 @@
     }
 
     @if (loading()) {
-      <p class="py-8 text-sm text-netrust-muted">Finding your community…</p>
+      <p class="py-8 text-sm text-netrust-muted">Loading profiles…</p>
     } @else if (error()) {
       <p role="alert" class="py-8 text-sm text-red-700">{{ error() }}</p>
     } @else if (filtered.length === 0) {
       <div class="border-y border-netrust-line py-10 text-center">
         @if (people().length === 0 && !search().trim()) {
           <p class="font-display text-xl">No public profiles yet</p>
-          <p class="mx-auto mt-1 max-w-lg text-sm text-netrust-muted">Community members appear here only after they opt into public search and choose which profile details anyone can see.</p>
-          <a routerLink="/apply" class="mt-4 inline-block text-sm font-bold text-netrust-green hover:underline">Apply to join your community →</a>
+          <p class="mx-auto mt-1 max-w-lg text-sm text-netrust-muted">Profiles appear here when members opt into public search and choose which details to share.</p>
+          <a routerLink="/apply" class="mt-4 inline-block text-sm font-bold text-netrust-green hover:underline">Apply to join →</a>
         } @else {
           <p class="font-display text-xl">No matches just yet</p>
           <p class="mt-1 text-sm text-netrust-muted">Try another name, skill or service.</p>
@@ -79,9 +79,9 @@
             </div>
 
             <div class="mt-4 flex flex-wrap gap-1.5">
-              <span class="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-900"><span aria-hidden="true">✓</span> Community</span>
+              <span class="inline-flex items-center gap-1 rounded-sm bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-900"><span aria-hidden="true">✓</span> Member</span>
               @for (unit of p.units ?? []; track unit) {
-                <span class="inline-flex items-center gap-1 rounded-sm bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-900"><span aria-hidden="true">✓</span> {{ unit }}</span>
+                <span class="inline-flex items-center gap-1 rounded-sm bg-[#edf2fb] px-2 py-1 text-[10px] font-bold text-[#284b8c]"><span aria-hidden="true">✓</span> {{ unit }}</span>
               }
               @for (homeCell of p.home_cells ?? []; track homeCell) {
                 <span class="inline-flex items-center gap-1 rounded-sm bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-900"><span aria-hidden="true">✓</span> {{ homeCell }} Homecell</span>
@@ -141,14 +141,14 @@
           <button type="button" aria-label="Close profile" (click)="closeProfile()" class="absolute right-3 top-3 !min-h-9 !w-9 !rounded-full !border-white/80 !bg-white/95 !p-0 !text-lg !text-netrust-ink !shadow-none">×</button>
         </div>
         <div class="max-h-[min(65vh,620px)] overflow-y-auto p-5 sm:p-7">
-          <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-coral">COMMUNITY MEMBER</p>
+          <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-coral">MEMBER PROFILE</p>
           <h2 class="mt-1 font-display text-3xl">{{ selected.full_name }}</h2>
           @if (selected.headline) { <p class="mt-1 text-base text-netrust-muted">{{ selected.headline }}</p> }
           @if (selected.location) { <p class="mt-1 text-sm text-netrust-muted">{{ selected.location }}</p> }
 
           <div class="mt-4 flex flex-wrap gap-2">
-            <span class="rounded-sm bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900">✓ Community member</span>
-            @for (unit of selected.units ?? []; track unit) { <span class="rounded-sm bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-900">✓ {{ unit }}</span> }
+            <span class="rounded-sm bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900">✓ Member</span>
+            @for (unit of selected.units ?? []; track unit) { <span class="rounded-sm bg-[#edf2fb] px-2.5 py-1.5 text-xs font-bold text-[#284b8c]">✓ {{ unit }}</span> }
             @for (homeCell of selected.home_cells ?? []; track homeCell) { <span class="rounded-sm bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-950">✓ {{ homeCell }}</span> }
           </div>
 
@@ -176,7 +176,7 @@
           }
           @if (selected.community_references?.length) {
             <section class="mt-6 border-t border-netrust-line pt-5">
-              <h3 class="text-sm font-extrabold">Community references</h3>
+              <h3 class="text-sm font-extrabold">Member references</h3>
               <ul class="mt-3 divide-y divide-netrust-line border-y border-netrust-line p-0">
                 @for (reference of selected.community_references; track reference.member_name + reference.responded_at) {
                   <li class="py-3">
@@ -223,7 +223,7 @@
             @if (messageRequestMessage()) { <p role="alert" class="mt-3 text-xs text-red-700">{{ messageRequestMessage() }}</p> }
             @if (contactMessage()) { <p role="status" class="mt-2 text-xs text-netrust-muted">{{ contactMessage() }}</p> }
           </section>
-          <p class="mt-6 border-t border-netrust-line pt-4 text-[11px] text-netrust-muted">Community and group verification confirms membership only. It does not certify professional ability or guarantee service quality.</p>
+          <p class="mt-6 border-t border-netrust-line pt-4 text-[11px] text-netrust-muted">Group verification confirms membership only. It does not certify professional ability or guarantee service quality.</p>
         </div>
       </section>
     </div>

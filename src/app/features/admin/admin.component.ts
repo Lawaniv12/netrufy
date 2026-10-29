@@ -64,10 +64,13 @@ export class AdminComponent {
   async load() {
     const communityId = this.supabase.profile()?.community_id;
     if (!communityId) return;
-    const [{ data: groups }, { data: members }, { data: community }] = await Promise.all([
+    const [{ data: groups }, { data: members }, { data: community }, { data: newMembers }, { data: applications }, { data: invites }] = await Promise.all([
       this.supabase.client.from('units').select('id, name, kind').order('name'),
       this.supabase.client.from('profiles').select('id, full_name').eq('role', 'member').order('full_name'),
       this.supabase.client.from('communities').select('name').eq('id', communityId).maybeSingle(),
+      this.supabase.client.from('profiles').select('id, full_name, created_at').eq('community_id', communityId).eq('role', 'member').order('created_at', { ascending: false }).limit(10),
+      this.supabase.client.from('membership_applications').select('id, full_name, status, created_at, reviewed_at').eq('community_id', communityId).order('created_at', { ascending: false }).limit(10),
+      this.supabase.client.from('invites').select('id, invitee_name, created_at').eq('community_id', communityId).order('created_at', { ascending: false }).limit(10),
     ]);
     const resolvedGroups = (groups ?? []) as CommunityGroup[];
     const resolvedMembers = (members ?? []) as { id: string; full_name: string }[];
@@ -76,18 +79,36 @@ export class AdminComponent {
     this.communityName.set(community?.name ?? 'Community');
 
     this.dashboardStats.set([
-      { label: 'Members', value: String(resolvedMembers.length), description: 'Active community members', delta: '+12%', icon: 'M', tone: 'green' },
-      { label: 'Units', value: String(resolvedGroups.filter((group) => group.kind === 'unit').length), description: 'Across your org', delta: '2 new', icon: 'U', tone: 'blue' },
-      { label: 'Home cells', value: String(resolvedGroups.filter((group) => group.kind === 'home_cell').length), description: 'Fellowship groups', delta: 'Healthy', icon: 'H', tone: 'amber' },
-      { label: 'Reports', value: String(this.messageReports().length), description: 'Pending trust signals', delta: 'Review queue', icon: 'R', tone: 'slate' },
+      { label: 'Members', value: String(resolvedMembers.length), description: 'Active members', delta: '', icon: 'M', tone: 'green' },
+      { label: 'Units', value: String(resolvedGroups.filter((group) => group.kind === 'unit').length), description: 'Registered Units', delta: '', icon: 'U', tone: 'blue' },
+      { label: 'Home cells', value: String(resolvedGroups.filter((group) => group.kind === 'home_cell').length), description: 'Registered Home Cells', delta: '', icon: 'H', tone: 'amber' },
+      { label: 'Open reports', value: String(this.messageReports().filter((report) => report.status === 'open').length), description: 'Awaiting review', delta: '', icon: 'R', tone: 'slate' },
     ]);
 
-    this.recentActivity.set([
-      { title: 'Invitation issued', detail: 'A new signup invitation was generated for a member onboarding flow.', time: '2h', tone: 'green' },
-      { title: 'Leader assignment', detail: 'Unit leadership was updated for one of your groups.', time: '1d', tone: 'blue' },
-      { title: 'Profile updated', detail: 'A member refreshed their public listing and trust settings.', time: '2d', tone: 'amber' },
-      { title: 'Moderation review', detail: 'A message report was reviewed and resolved by the admin team.', time: '3d', tone: 'slate' },
-    ]);
+    const activity: ActivityItem[] = [
+      ...(newMembers ?? []).map((member) => ({
+        id: `member-${member.id}`,
+        title: 'Member joined',
+        detail: `${member.full_name} joined the organization.`,
+        at: member.created_at,
+        tone: 'green' as const,
+      })),
+      ...(applications ?? []).map((application) => ({
+        id: `application-${application.id}`,
+        title: application.status === 'pending' ? 'Application received' : `Application ${application.status}`,
+        detail: `${application.full_name} ${application.status === 'pending' ? 'submitted an application.' : `had an application ${application.status}.`}`,
+        at: application.status === 'pending' ? application.created_at : application.reviewed_at ?? application.created_at,
+        tone: 'amber' as const,
+      })),
+      ...(invites ?? []).map((invite) => ({
+        id: `invite-${invite.id}`,
+        title: 'Invitation issued',
+        detail: invite.invitee_name ? `An invitation was sent to ${invite.invitee_name}.` : 'A member invitation was created.',
+        at: invite.created_at,
+        tone: 'blue' as const,
+      })),
+    ];
+    this.recentActivity.set(activity.sort((first, second) => Date.parse(second.at) - Date.parse(first.at)).slice(0, 5));
   }
 
   async loadMessageReports() {
@@ -96,7 +117,7 @@ export class AdminComponent {
     const reports = (data ?? []) as DirectMessageReport[];
     this.messageReports.set(reports);
     this.dashboardStats.update((stats) => stats.map((stat) => {
-      if (stat.label === 'Reports') return { ...stat, value: String(reports.length) };
+      if (stat.label === 'Open reports') return { ...stat, value: String(reports.filter((report) => report.status === 'open').length) };
       return stat;
     }));
     this.moderationItems.set(reports.slice(0, 4).map((report) => ({

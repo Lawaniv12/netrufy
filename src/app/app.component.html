@@ -11,12 +11,14 @@
         </button>
         <div id="mobile-menu" class="nav-links" [class.mobile-open]="mobileMenuOpen()" (keydown.escape)="closeMobileMenu()">
           <a routerLink="/directory" routerLinkActive="active" (click)="closeMobileMenu()">Directory</a>
-          @if (supabase.profile()?.role === 'member') {
+          @if (supabase.profile()?.role === 'member' || supabase.profile()?.role === 'community_admin') {
             <a routerLink="/messages" routerLinkActive="active" (click)="closeMobileMenu()">Messages</a>
           }
           <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My profile</a>
           <a routerLink="/trust" routerLinkActive="active" (click)="closeMobileMenu()">Trust</a>
-          <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>
+          @if (supabase.canAccessUnitAdmin()) {
+            <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>
+          }
           @if (supabase.profile()?.role === 'community_admin' || supabase.profile()?.role === 'platform_admin') {
             <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
           }
@@ -24,7 +26,7 @@
         </div>
       } @else {
         <div class="signed-out-links">
-          <a routerLink="/apply">Join your community</a>
+          <a routerLink="/apply">Apply to join</a>
           <a class="sign-in-link" routerLink="/login">Sign in <span aria-hidden="true">&rarr;</span></a>
         </div>
       }

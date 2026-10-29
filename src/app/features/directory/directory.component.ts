@@ -80,7 +80,7 @@ export class DirectoryComponent {
   get sectionTitle() {
     if (this.activeView() === 'services') return 'Services people are offering';
     if (this.activeView() === 'skills') return 'People by skill';
-    return 'People in your community';
+    return 'People';
   }
 
   explore(view: ExploreView) {
@@ -122,7 +122,7 @@ export class DirectoryComponent {
     this.contactMessage.set(null);
     const { data, error } = await this.supabase.client.rpc('reveal_contact', { p_profile: profileId });
     if (error || !data) {
-      this.contactMessage.set('This member has not shared their phone number with the community.');
+      this.contactMessage.set('This member has not shared their phone number.');
       return;
     }
     this.contactPhone.set(data as string);
@@ -151,13 +151,13 @@ export class DirectoryComponent {
   }
 
   waLink(phone: string, name: string) {
-    const message = encodeURIComponent(`Hi ${name}, I found your profile in our community and would like to connect.`);
+    const message = encodeURIComponent(`Hi ${name}, I found your profile on Netrufy and would like to connect.`);
     return `https://wa.me/${phone}?text=${message}`;
   }
 
   avatarTone(name: string) {
     const tones = [
-      'bg-blue-100 text-blue-900',
+      'bg-[#edf2fb] text-[#284b8c]',
       'bg-emerald-100 text-emerald-900',
       'bg-amber-100 text-amber-900',
       'bg-rose-100 text-rose-900',

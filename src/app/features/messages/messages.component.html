@@ -2,7 +2,7 @@
   <header class="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-netrust-line pb-5">
     <div>
       <h1 class="font-display text-3xl">Messages</h1>
-      <p class="mt-1 text-sm text-netrust-muted">Private chats with verified community members.</p>
+      <p class="mt-1 text-sm text-netrust-muted">Private chats with approved contacts.</p>
     </div>
     <p class="text-xs text-netrust-muted">Message requests need your approval.</p>
   </header>
@@ -85,7 +85,7 @@
           @if (conversation.counterpart_photo_url) {
             <img class="avatar object-cover" [src]="conversation.counterpart_photo_url" alt="" />
           } @else { <span class="avatar">{{ initials(conversation.counterpart_name) }}</span> }
-          <div class="min-w-0 flex-1"><h2 class="truncate text-sm font-bold">{{ conversation.counterpart_name }}</h2><p class="text-xs text-netrust-muted">{{ conversation.status === 'accepted' ? 'Community member' : 'Message request' }}</p></div>
+          <div class="min-w-0 flex-1"><h2 class="truncate text-sm font-bold">{{ conversation.counterpart_name }}</h2><p class="text-xs text-netrust-muted">{{ conversation.status === 'accepted' ? 'Member' : 'Message request' }}</p></div>
           <button type="button" class="quiet-action" (click)="toggleBlock(conversation)">{{ conversation.blocked_by_me ? 'Unblock' : 'Block' }}</button>
           <button type="button" class="quiet-action" (click)="reportOpen.set(!reportOpen())">Report</button>
         </header>

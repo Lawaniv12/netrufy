@@ -73,7 +73,7 @@
                     <div class="min-w-0 flex-1">
                       <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-[#2459e8]">{{ application.unit_name }}</p>
+                          <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-netrust-blue">{{ application.unit_name }}</p>
                           <h3 class="mt-1 text-lg font-semibold text-slate-900">{{ application.full_name }}</h3>
                         </div>
                         <span class="inline-flex w-fit items-center rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">New</span>
@@ -101,6 +101,27 @@
                 </article>
               }
             </div>
+          }
+          @if (approvedApplications().length) {
+            <section class="mt-8 border-t border-slate-200 pt-6" aria-labelledby="approved-applications-heading">
+              <div class="mb-4">
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">Completed</p>
+                <h3 id="approved-applications-heading" class="mt-1 text-lg font-semibold tracking-tight text-slate-900">Approved applicants</h3>
+              </div>
+              <div class="divide-y divide-slate-200 border-y border-slate-200">
+                @for (application of approvedApplications(); track application.id) {
+                  <div class="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                      <p class="truncate text-sm font-semibold text-slate-800">{{ application.full_name }}</p>
+                      <p class="mt-0.5 truncate text-xs text-slate-500">{{ application.email }}<span *ngIf="application.reviewed_at"> · approved {{ application.reviewed_at | date:'mediumDate' }}</span></p>
+                    </div>
+                    <button type="button" (click)="reissueInvitation(application)" [disabled]="processingId() === application.id" class="!w-auto !shrink-0 !border-slate-200 !bg-white !text-xs !text-netrust-green hover:!bg-netrust-paper">
+                      {{ processingId() === application.id ? 'Generating…' : 'Get new invite link' }}
+                    </button>
+                  </div>
+                }
+              </div>
+            </section>
           }
         } @else {
           <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">

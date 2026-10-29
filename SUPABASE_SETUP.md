@@ -15,8 +15,11 @@ For a new Supabase project, run these SQL files in order in **Supabase Dashboard
 7. [0007_member_photo_storage_rls.sql](supabase/migrations/0007_member_photo_storage_rls.sql)
 8. [0008_member_messaging.sql](supabase/migrations/0008_member_messaging.sql)
 9. [0009_unit_roster_role.sql](supabase/migrations/0009_unit_roster_role.sql)
+10. [0010_public_community_admin_profiles.sql](supabase/migrations/0010_public_community_admin_profiles.sql)
+11. [0011_community_admin_messaging.sql](supabase/migrations/0011_community_admin_messaging.sql)
+12. [0012_unit_activity_timestamps.sql](supabase/migrations/0012_unit_activity_timestamps.sql)
 
-If earlier migrations are already applied, run only the missing later migrations, in order. Public search, membership applications, the Unit review queue, and the 100 KB photo buckets require `0005_public_discovery_and_applications.sql`. Migrations `0001`–`0006` are not repeatable; do not rerun one that has already succeeded. Migration `0007` repairs the profile-photo Storage policies, migration `0008` adds member messaging, and migration `0009` adds Unit roles to the admin roster view.
+If earlier migrations are already applied, run only the missing later migrations, in order. Public search, membership applications, the Unit review queue, and the 100 KB photo buckets require `0005_public_discovery_and_applications.sql`. Migrations `0001`–`0006` are not repeatable; do not rerun one that has already succeeded. Migration `0007` repairs the profile-photo Storage policies, migration `0008` adds member messaging, migration `0009` adds Unit roles to the admin roster view, migration `0010` allows opted-in community admins in public discovery, migration `0011` allows members to request chats with those admins, and migration `0012` exposes joined timestamps through the Unit-scoped roster view for recent activity.
 
 ## Supabase Auth Settings
 
@@ -70,4 +73,4 @@ Community administrators should assign a verified membership as a Unit leader fr
 
 ## Member messaging
 
-Run migration `0008_member_messaging.sql` after `0007`. Members can request one-to-one chats only with members in their community who share a verified Unit or Home Cell; recipients must accept before messages can be sent. Requests are limited to 10 outstanding per sender. Messages are text-only, limited to 2,000 characters, stored in Postgres, and streamed only for the conversation currently open. Blocking prevents new requests and messages. Reports are visible to community administrators. This is access-controlled chat, not end-to-end encrypted messaging: Supabase and authorized project operators can access stored message content. Messages have no automatic expiry or self-service deletion in this release, so set a retention policy before production use.
+Run migrations `0008_member_messaging.sql` through `0011_community_admin_messaging.sql` in order. Members can request one-to-one chats with members in their community who share a verified Unit or Home Cell, or with a community admin in the same community who has opted into public listing. Recipients must accept before messages can be sent. Requests are limited to 10 outstanding per sender. Messages are text-only, limited to 2,000 characters, stored in Postgres, and streamed only for the conversation currently open. Blocking prevents new requests and messages. Reports are visible to community administrators. This is access-controlled chat, not end-to-end encrypted messaging: Supabase and authorized project operators can access stored message content. Messages have no automatic expiry or self-service deletion in this release, so set a retention policy before production use.

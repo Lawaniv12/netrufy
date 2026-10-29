@@ -70,7 +70,7 @@
               <span class="text-sm font-semibold">{{ field.label }}</span>
               <select [name]="'visibility-' + field.key" [ngModel]="visibilityFor(field.key)" (ngModelChange)="setVisibility(field.key, $event)" class="min-h-10 border border-netrust-line bg-white px-3 text-xs">
                 <option value="private">Only me</option>
-                <option value="community">Community members</option>
+                <option value="community">Signed-in members</option>
                 <option value="viewers">Members + invited viewers</option>
                 <option value="public">Anyone</option>
               </select>

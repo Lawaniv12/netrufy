@@ -39,7 +39,7 @@ export class LoginComponent {
         await this.router.navigateByUrl(this.returnTo);
         return;
       }
-      this.error.set('Your account is not connected to a community profile. Open your invitation link or contact your community administrator.');
+      this.error.set('Your account is not linked to a member profile. Open your invitation link or contact an administrator.');
       return;
     }
     await this.router.navigateByUrl(this.returnTo?.startsWith('/') ? this.returnTo : '/directory');

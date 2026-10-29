@@ -2,7 +2,7 @@
   <section class="mx-auto grid w-full max-w-5xl overflow-hidden border border-netrust-line bg-white md:grid-cols-[0.85fr_1.15fr]">
     <aside class="bg-[#173a2c] p-7 text-white sm:p-10">
       <a routerLink="/directory" class="text-sm font-extrabold text-white no-underline">Netrufy</a>
-      <p class="mt-14 text-[10px] font-extrabold tracking-[0.16em] text-[#d7f36a]">JOIN YOUR COMMUNITY</p>
+      <p class="mt-14 text-[10px] font-extrabold tracking-[0.16em] text-[#d7f36a]">JOIN A UNIT</p>
       <h1 class="mt-3 font-display text-4xl leading-tight">Bring your skills into view.</h1>
       <p class="mt-4 text-sm leading-6 text-white/75">A Unit leader reviews each application before membership is granted. Public profile visibility is your choice.</p>
       <a routerLink="/login" class="mt-7 inline-block text-xs font-bold text-[#d7f36a]">Already a member? Sign in →</a>
@@ -22,7 +22,7 @@
         <p class="mt-2 text-sm text-netrust-muted">Your Unit administrator reviews this before you become a member.</p>
 
         @if (loading()) {
-          <p class="mt-8 text-sm text-netrust-muted">Loading communities…</p>
+          <p class="mt-8 text-sm text-netrust-muted">Loading Units…</p>
         } @else if (!units().length) {
           <p class="mt-8 rounded border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">There are no Units accepting applications yet. Please check back later.</p>
         } @else {
@@ -38,7 +38,7 @@
                 <input class="min-h-11 border border-netrust-line px-3 text-sm font-normal" name="phone" type="tel" [(ngModel)]="phone" autocomplete="tel" placeholder="0801 234 5678" required />
               </label>
             </div>
-            <label class="flex flex-col gap-1.5 text-xs font-bold">Community Unit
+            <label class="flex flex-col gap-1.5 text-xs font-bold">Unit
               <select class="min-h-11 border border-netrust-line bg-white px-3 text-sm font-normal" name="unitId" [(ngModel)]="unitId" required>
                 <option value="">Choose a Unit</option>
                 @for (unit of units(); track unit.id) { <option [value]="unit.id">{{ unit.name }} · {{ unit.community_name }}</option> }

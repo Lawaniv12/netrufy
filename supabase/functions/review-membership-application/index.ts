@@ -14,9 +14,10 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const applicationId = String(body.applicationId ?? '');
+    const reissueInvite = body.action === 'reissue';
     const decision = body.decision === 'approve' ? 'approve' : body.decision === 'reject' ? 'reject' : null;
     const reviewNote = String(body.reviewNote ?? '').trim().slice(0, 500);
-    if (!applicationId || !decision) return json({ error: 'Choose an application and decision.' }, 400);
+    if (!applicationId || (!decision && !reissueInvite)) return json({ error: 'Choose an application and action.' }, 400);
 
     const admin = adminClient();
     const [{ data: actor }, { data: application }] = await Promise.all([
@@ -31,6 +32,34 @@ Deno.serve(async (req) => {
       .eq('profile_id', user.id).eq('unit_id', application.unit_id)
       .eq('unit_role', 'leader').eq('status', 'verified').maybeSingle();
     if (!isAdmin && !leadership) return json({ error: 'You are not a leader of this Unit.' }, 403);
+
+    if (reissueInvite) {
+      if (application.status !== 'approved') return json({ error: 'Only approved applications can receive a new invitation.' }, 409);
+      const { data: invite, error: lookupError } = await admin.from('invites')
+        .select('id, used_at').eq('application_id', application.id).maybeSingle();
+      if (lookupError || !invite) return json({ error: 'No unused invitation was found for this application.' }, 404);
+      if (invite.used_at) return json({ error: 'This invitation has already been used. The applicant should sign in instead.' }, 409);
+
+      const appBaseUrl = Deno.env.get('APP_BASE_URL') ?? req.headers.get('origin');
+      if (!appBaseUrl) return json({ error: 'Configure APP_BASE_URL before reissuing invitations.' }, 500);
+      const token = newToken();
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: updatedInvite, error: rotateError } = await admin.from('invites').update({
+        token_hash: await sha256(token),
+        expires_at: expiresAt,
+      }).eq('id', invite.id).is('used_at', null).select('id').maybeSingle();
+      if (rotateError || !updatedInvite) return json({ error: 'Could not reissue this invitation. Try again.' }, 409);
+
+      await admin.from('audit_log').insert({
+        community_id: application.community_id,
+        actor: user.id,
+        action: 'membership_application.invite_reissued',
+        entity: 'invites',
+        entity_id: invite.id,
+      });
+      return json({ ok: true, inviteUrl: new URL(`/invite/${token}`, appBaseUrl).toString(), expiresAt });
+    }
+
     if (application.status !== 'pending') return json({ error: 'This application has already been reviewed.' }, 409);
 
     if (decision === 'reject') {

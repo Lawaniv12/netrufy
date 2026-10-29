@@ -257,7 +257,7 @@ export class MessagesComponent implements OnDestroy {
     }
     this.reportOpen.set(false);
     this.reportDetails.set('');
-    this.status.set('Report sent to your community administrators.');
+    this.status.set('Report sent to the administrators.');
   }
 
   messageTime(value: string) {

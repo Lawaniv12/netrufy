@@ -31,3 +31,11 @@ export const memberGuard: CanActivateFn = async () => {
   await supabase.waitForInitialization();
   return supabase.profile()?.role === 'member' ? true : router.createUrlTree(['/directory']);
 };
+
+export const messageParticipantGuard: CanActivateFn = async () => {
+  const supabase = inject(SupabaseService);
+  const router = inject(Router);
+  await supabase.waitForInitialization();
+  const role = supabase.profile()?.role;
+  return role === 'member' || role === 'community_admin' ? true : router.createUrlTree(['/directory']);
+};

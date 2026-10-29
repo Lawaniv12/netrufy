@@ -16,10 +16,12 @@ export class SupabaseService {
 
   private readonly _session = signal<Session | null>(null);
   private readonly _profile = signal<MyProfile | null>(null);
+  private readonly _canAccessUnitAdmin = signal(false);
   private readonly initialization: Promise<void>;
 
   readonly session = this._session.asReadonly();
   readonly profile = this._profile.asReadonly();
+  readonly canAccessUnitAdmin = this._canAccessUnitAdmin.asReadonly();
   readonly isAuthed = computed(() => this._session() !== null);
 
   constructor() {
@@ -40,11 +42,24 @@ export class SupabaseService {
     this._session.set(session);
     if (!session) {
       this._profile.set(null);
+      this._canAccessUnitAdmin.set(false);
       return;
     }
     // RLS: profiles_self_or_admin_read lets a user always read their own row.
     const { data } = await this.client.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
-    this._profile.set(data as MyProfile | null);
+    const profile = data as MyProfile | null;
+    this._profile.set(profile);
+    if (!profile) {
+      this._canAccessUnitAdmin.set(false);
+      return;
+    }
+    if (profile.role === 'community_admin' || profile.role === 'platform_admin') {
+      this._canAccessUnitAdmin.set(true);
+      return;
+    }
+    const { data: leaderMemberships } = await this.client.from('memberships').select('unit_id')
+      .eq('profile_id', profile.id).eq('unit_role', 'leader').eq('status', 'verified');
+    this._canAccessUnitAdmin.set(Boolean(leaderMemberships?.length));
   }
 
   async refreshProfile() {

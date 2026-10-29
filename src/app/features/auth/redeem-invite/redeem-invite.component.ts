@@ -29,6 +29,9 @@ export class RedeemInviteComponent {
   readonly inviteValid = signal<boolean | null>(null);
   readonly communityName = signal<string | null>(null);
   readonly groupName = signal<string | null>(null);
+  readonly memberCount = signal<number | null>(null);
+  readonly newMemberCount = signal<number | null>(null);
+  readonly recentJoins = signal<Array<{ at: string }>>([]);
   readonly approvedEmail = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly busy = signal(false);
@@ -45,6 +48,9 @@ export class RedeemInviteComponent {
       valid: boolean;
       communityName?: string | null;
       groupName?: string | null;
+      memberCount?: number | null;
+      newMemberCount?: number | null;
+      recentJoins?: Array<{ at: string }>;
       inviteeEmail?: string | null;
       inviteeName?: string | null;
       inviteePhone?: string | null;
@@ -55,6 +61,9 @@ export class RedeemInviteComponent {
     }
     this.communityName.set(data.communityName ?? null);
     this.groupName.set(data.groupName ?? null);
+    this.memberCount.set(data.memberCount ?? null);
+    this.newMemberCount.set(data.newMemberCount ?? null);
+    this.recentJoins.set(data.recentJoins ?? []);
     this.approvedEmail.set(data.inviteeEmail ?? null);
     if (data.inviteeEmail) this.email.set(data.inviteeEmail);
     if (data.inviteeName) this.fullName.set(data.inviteeName);
@@ -64,6 +73,15 @@ export class RedeemInviteComponent {
 
   get isAuthed() {
     return this.supabase.isAuthed();
+  }
+
+  activityTime(value: string): string {
+    const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 60_000));
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
   }
 
   async createAccount() {
@@ -107,7 +125,19 @@ export class RedeemInviteComponent {
       phone: this.phone().trim(),
     });
     this.busy.set(false);
-    if (error) { this.error.set(error.message); return; }
+    if (error) {
+      const functionError = error as Error & { context?: unknown };
+      const context = functionError.context;
+      if (context instanceof Response) {
+        const body = await context.clone().json().catch(() => null) as { error?: unknown } | null;
+        if (typeof body?.error === 'string') {
+          this.error.set(body.error);
+          return;
+        }
+      }
+      this.error.set(functionError.message);
+      return;
+    }
     await this.supabase.refreshProfile();
     this.router.navigate(['/profile']);
   }
