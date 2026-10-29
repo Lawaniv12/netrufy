@@ -32,6 +32,10 @@ In **Authentication → URL Configuration**:
 
 Production signup and password-reset callbacks use `https://netrufy.vercel.app`. Supabase only honors that callback when it is in **Redirect URLs**; otherwise it may fall back to the **Site URL**. Local development continues to use the current local origin. Changing these settings does not rewrite emails already sent; use a fresh confirmation/invitation flow after correcting the settings.
 
+### Branded authentication emails
+
+Supabase's default mail service uses Supabase branding and is intended for testing. To send production verification and recovery emails as Netrufy, configure a custom SMTP provider in **Authentication → SMTP Settings**. Set the sender name to `Netrufy` and use a sender address on a domain you own (not the `vercel.app` hosting domain). Configure the SMTP host, port, username, and password from your email provider, then publish its SPF and DKIM DNS records and add DMARC. Send a fresh confirmation email to test the branded sender; previously sent messages cannot be changed.
+
 ## Edge Functions
 
 Deploy the invite functions after setting the app's public origin:

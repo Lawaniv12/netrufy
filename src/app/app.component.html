@@ -6,24 +6,28 @@
         <span><strong>Netrufy</strong></span>
       </a>
       @if (supabase.isAuthed()) {
-        <button type="button" class="menu-toggle" [attr.aria-expanded]="mobileMenuOpen()" aria-controls="mobile-menu" [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'" (click)="toggleMobileMenu()">
-          <span></span><span></span><span></span>
-        </button>
-        <div id="mobile-menu" class="nav-links" [class.mobile-open]="mobileMenuOpen()" (keydown.escape)="closeMobileMenu()">
-          <a routerLink="/directory" routerLinkActive="active" (click)="closeMobileMenu()">Directory</a>
-          @if (supabase.profile()?.role === 'member' || supabase.profile()?.role === 'community_admin') {
-            <a routerLink="/messages" routerLinkActive="active" (click)="closeMobileMenu()">Messages</a>
-          }
-          <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My profile</a>
-          <a routerLink="/trust" routerLinkActive="active" (click)="closeMobileMenu()">Trust</a>
-          @if (supabase.canAccessUnitAdmin()) {
-            <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>
-          }
-          @if (supabase.profile()?.role === 'community_admin' || supabase.profile()?.role === 'platform_admin') {
-            <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
-          }
-          <button class="sign-out" (click)="signOut()">Sign out</button>
-        </div>
+        @if (isDashboardPage()) {
+          <button type="button" (click)="signOut()" class="workspace-sign-out">Sign out</button>
+        } @else {
+          <button type="button" class="menu-toggle" [attr.aria-expanded]="mobileMenuOpen()" aria-controls="mobile-menu" [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'" (click)="toggleMobileMenu()">
+            <span></span><span></span><span></span>
+          </button>
+          <div id="mobile-menu" class="nav-links" [class.mobile-open]="mobileMenuOpen()" (keydown.escape)="closeMobileMenu()">
+            <a routerLink="/directory" routerLinkActive="active" (click)="closeMobileMenu()">Directory</a>
+            @if (supabase.profile()?.role === 'member' || supabase.profile()?.role === 'community_admin') {
+              <a routerLink="/messages" routerLinkActive="active" (click)="closeMobileMenu()">Messages</a>
+            }
+            <a routerLink="/profile" routerLinkActive="active" (click)="closeMobileMenu()">My profile</a>
+            <a routerLink="/trust" routerLinkActive="active" (click)="closeMobileMenu()">Trust</a>
+            @if (supabase.canAccessUnitAdmin()) {
+              <a routerLink="/unit-admin" routerLinkActive="active" (click)="closeMobileMenu()">Unit admin</a>
+            }
+            @if (supabase.profile()?.role === 'community_admin' || supabase.profile()?.role === 'platform_admin') {
+              <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
+            }
+            <button class="sign-out" (click)="signOut()">Sign out</button>
+          </div>
+        }
       } @else {
         <div class="signed-out-links">
           <a routerLink="/apply">Apply to join</a>
@@ -32,6 +36,12 @@
       }
     </nav>
   </header>
+}
+
+@if (navigationLoading()) {
+  <div class="route-progress" role="progressbar" aria-label="Loading page" aria-valuetext="Loading page">
+    <span></span>
+  </div>
 }
 
 <router-outlet />

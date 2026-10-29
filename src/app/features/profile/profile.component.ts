@@ -1,6 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { DashboardNavItem, DashboardShellComponent } from '../../shared/dashboard-shell/dashboard-shell.component';
 import { MyProfile, ProfileLink, Visibility } from '../../core/models/models';
 import { compressProfileImage } from '../../core/utils/image-compression';
 
@@ -29,14 +32,22 @@ type ProfileTab = 'details' | 'privacy' | 'links';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, DashboardShellComponent],
   templateUrl: './profile.component.html',
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnDestroy {
   private readonly supabase = inject(SupabaseService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly fragmentSubscription: Subscription;
 
   readonly fields = FIELDS;
   readonly activeTab = signal<ProfileTab>('details');
+  readonly navItems: DashboardNavItem[] = [
+    { label: 'Details', route: '/profile', fragment: 'details' },
+    { label: 'Privacy', route: '/profile', fragment: 'privacy' },
+    { label: 'Links', route: '/profile', fragment: 'links' },
+  ];
   readonly profile = signal<MyProfile | null>(this.supabase.profile());
   readonly saving = signal(false);
   readonly savedAt = signal<Date | null>(null);
@@ -52,12 +63,24 @@ export class ProfileComponent {
   readonly photoError = signal<string | null>(null);
 
   constructor() {
+    this.fragmentSubscription = this.route.fragment.subscribe((fragment) => {
+      this.activeTab.set(fragment === 'privacy' || fragment === 'links' ? fragment : 'details');
+    });
     const p = this.supabase.profile();
     if (p) {
       this.skillsText.set((p.skills ?? []).join(', '));
       this.servicesText.set((p.services ?? []).join(', '));
       void this.loadLinks(p.id);
     }
+  }
+
+  ngOnDestroy() {
+    this.fragmentSubscription.unsubscribe();
+  }
+
+  setActiveTab(tab: ProfileTab) {
+    this.activeTab.set(tab);
+    void this.router.navigate([], { relativeTo: this.route, fragment: tab });
   }
 
   async loadLinks(profileId: string) {

@@ -3,12 +3,13 @@ import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { DashboardShellComponent } from '../../shared/dashboard-shell/dashboard-shell.component';
 import { DirectConversation, DirectMessage, DirectMessageReport } from '../../core/models/models';
 
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DashboardShellComponent],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.scss',
 })

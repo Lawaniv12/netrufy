@@ -1,11 +1,5 @@
-<main class="mx-auto min-h-[calc(100vh-72px)] w-full max-w-[1200px] px-4 py-6 text-netrust-ink sm:px-6 sm:py-8">
-  <header class="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-netrust-line pb-5">
-    <div>
-      <h1 class="font-display text-3xl">Messages</h1>
-      <p class="mt-1 text-sm text-netrust-muted">Private chats with approved contacts.</p>
-    </div>
-    <p class="text-xs text-netrust-muted">Message requests need your approval.</p>
-  </header>
+<app-dashboard-shell [title]="'Messages'" [subtitle]="'Private chats with approved contacts.'" [badge]="'Member workspace'">
+  <p class="mb-4 text-xs text-netrust-muted">Message requests need your approval.</p>
 
   @if (error()) { <p role="alert" class="mb-4 border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{{ error() }}</p> }
   @if (status()) { <p role="status" class="mb-4 border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">{{ status() }}</p> }
@@ -152,4 +146,4 @@
       }
     </section>
   </div>
-</main>
+</app-dashboard-shell>

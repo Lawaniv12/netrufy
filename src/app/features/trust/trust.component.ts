@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { DashboardShellComponent } from '../../shared/dashboard-shell/dashboard-shell.component';
 import {
   Attestation,
   CommunityGroup,
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'app-trust',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DashboardShellComponent],
   templateUrl: './trust.component.html',
 })
 export class TrustComponent implements OnDestroy {

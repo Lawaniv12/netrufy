@@ -1,32 +1,23 @@
-<main class="mx-auto min-h-screen w-full max-w-[1160px] px-5 py-8 text-netrust-ink sm:px-6 sm:py-10">
+<app-dashboard-shell [title]="'My profile'" [subtitle]="'Edit your details, visibility, and links.'" [badge]="'Member workspace'" [navItems]="navItems">
   @if (!profile()) {
     <p class="py-10 text-sm text-netrust-muted">Loading your profile…</p>
   } @else {
-    <header class="mb-6 flex flex-wrap items-center gap-4 border-b border-netrust-line pb-6">
-      @if (profile()!.photo_url) {
-        <img class="h-16 w-16 rounded-full border border-netrust-line object-cover" [src]="profile()!.photo_url!" alt="Your profile photo" />
-      } @else {
-        <span class="grid h-16 w-16 place-items-center rounded-full bg-emerald-50 font-display text-xl text-netrust-green">{{ profile()!.full_name.slice(0, 1) }}</span>
-      }
-      <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-extrabold tracking-[0.14em] text-netrust-blue">MEMBER PROFILE</p>
-        <h1 class="mt-1 truncate font-display text-3xl">{{ profile()!.full_name }}</h1>
-        <p class="mt-1 text-xs text-netrust-muted">Manage your details, privacy, and links.</p>
-      </div>
-      @if (savedAt()) { <span class="text-xs font-semibold text-emerald-800">Saved</span> }
-    </header>
-
-    <nav class="mb-6 flex gap-1 border-b border-netrust-line" aria-label="Profile settings">
-      <button type="button" (click)="activeTab.set('details')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'details'" [class.!bg-transparent]="activeTab() !== 'details'" [class.!text-netrust-muted]="activeTab() !== 'details'">Details</button>
-      <button type="button" (click)="activeTab.set('privacy')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'privacy'" [class.!bg-transparent]="activeTab() !== 'privacy'" [class.!text-netrust-muted]="activeTab() !== 'privacy'">Privacy</button>
-      <button type="button" (click)="activeTab.set('links')" class="!min-h-11 !w-auto !rounded-none !border-0 !border-b-2 !px-4 !py-2 !text-sm !shadow-none" [class.!border-b-netrust-green]="activeTab() === 'links'" [class.!bg-transparent]="activeTab() !== 'links'" [class.!text-netrust-muted]="activeTab() !== 'links'">Links <span class="ml-1 text-xs">{{ links().length }}</span></button>
-    </nav>
-
+    @if (savedAt()) {
+      <p role="status" class="mb-5 text-xs font-semibold text-netrust-green">Changes saved</p>
+    }
     @if (activeTab() === 'details') {
-      <section class="max-w-3xl" aria-labelledby="details-heading">
+      <section id="details" class="max-w-3xl scroll-mt-48" aria-labelledby="details-heading">
         <div class="mb-5"><h2 id="details-heading" class="font-display text-2xl">Profile details</h2><p class="mt-1 text-sm text-netrust-muted">Share the information people need to recognize what you do.</p></div>
         <form (ngSubmit)="save()" class="grid gap-4 sm:grid-cols-2">
           <label class="flex flex-col gap-1.5 text-xs font-bold sm:col-span-2">Profile photo
+            <span class="flex items-center gap-4 py-2">
+              @if (profile()!.photo_url) {
+                <img class="h-20 w-20 rounded-lg border border-netrust-line bg-white object-cover" [src]="profile()!.photo_url!" alt="Current profile photo" />
+              } @else {
+                <span class="grid h-20 w-20 place-items-center rounded-lg border border-netrust-line bg-netrust-paper font-display text-2xl text-netrust-green" aria-hidden="true">{{ profile()!.full_name.slice(0, 1) }}</span>
+              }
+              <span class="font-normal text-netrust-muted">Current profile photo</span>
+            </span>
             <span class="font-normal text-netrust-muted">Only upload after opting into public listing and setting Photo visibility to Anyone. JPEG, PNG or WebP; compressed to 100 KB.</span>
             <input class="text-xs" name="photo" type="file" accept="image/jpeg,image/png,image/webp" (change)="uploadProfilePhoto($event)" [disabled]="photoBusy()" />
             @if (photoBusy()) { <span class="font-normal text-netrust-muted">Compressing and uploading…</span> }
@@ -58,7 +49,7 @@
         </form>
       </section>
     } @else if (activeTab() === 'privacy') {
-      <section class="max-w-3xl" aria-labelledby="privacy-heading">
+      <section id="privacy" class="max-w-3xl scroll-mt-48" aria-labelledby="privacy-heading">
         <div class="mb-5"><h2 id="privacy-heading" class="font-display text-2xl">Privacy and visibility</h2><p class="mt-1 text-sm text-netrust-muted">Public listing is off by default. Choose which fields strangers can see.</p></div>
         <label class="setting-toggle mb-5 border border-netrust-line bg-white p-4 text-sm">
           <input type="checkbox" name="public_listing" [(ngModel)]="profile()!.public_listing" />
@@ -83,7 +74,7 @@
         </div>
       </section>
     } @else {
-      <section class="max-w-3xl" aria-labelledby="links-heading">
+      <section id="links" class="max-w-3xl scroll-mt-48" aria-labelledby="links-heading">
         <div class="mb-5"><h2 id="links-heading" class="font-display text-2xl">Portfolio and social links</h2><p class="mt-1 text-sm text-netrust-muted">These follow the audience you choose for “Portfolio links” in Privacy.</p></div>
         @if (links().length) {
           <ul class="mb-6 divide-y divide-netrust-line border-y border-netrust-line p-0">
@@ -108,4 +99,4 @@
       </section>
     }
   }
-</main>
+</app-dashboard-shell>

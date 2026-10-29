@@ -24,12 +24,12 @@
     </section>
   }
 
-  <div class="mb-5 flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-    <button type="button" (click)="setActiveTab('applications')" [attr.aria-pressed]="activeTab() === 'applications'" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors" [class.bg-[#275b43]]="activeTab() === 'applications'" [class.text-white]="activeTab() === 'applications'" [class.bg-white]="activeTab() !== 'applications'" [class.text-slate-600]="activeTab() !== 'applications'">
-      Applications <span class="ml-1 text-xs">{{ applications().length }}</span>
+  <div [attr.id]="activeTab() === 'applications' ? 'applications' : 'roster'" class="unit-dashboard-tabs mb-6 scroll-mt-48" role="tablist" aria-label="Unit dashboard views">
+    <button type="button" role="tab" (click)="setActiveTab('applications')" [attr.aria-pressed]="activeTab() === 'applications'" [attr.aria-selected]="activeTab() === 'applications'" class="unit-dashboard-tab" [class.unit-dashboard-tab--active]="activeTab() === 'applications'">
+      <span>Applications</span><span class="unit-dashboard-tab__count">{{ applications().length }}</span>
     </button>
-    <button type="button" (click)="setActiveTab('members')" [attr.aria-pressed]="activeTab() === 'members'" class="flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors" [class.bg-[#275b43]]="activeTab() === 'members'" [class.text-white]="activeTab() === 'members'" [class.bg-white]="activeTab() !== 'members'" [class.text-slate-600]="activeTab() !== 'members'">
-      Members <span class="ml-1 text-xs">{{ members().length }}</span>
+    <button type="button" role="tab" (click)="setActiveTab('members')" [attr.aria-pressed]="activeTab() === 'members'" [attr.aria-selected]="activeTab() === 'members'" class="unit-dashboard-tab" [class.unit-dashboard-tab--active]="activeTab() === 'members'">
+      <span>Members</span><span class="unit-dashboard-tab__count">{{ members().length }}</span>
     </button>
   </div>
 
@@ -41,8 +41,6 @@
 
   <div class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_10px_25px_rgba(15,23,42,0.04)]">
-      <span id="applications" class="block scroll-mt-48"></span>
-      <span id="roster" class="block scroll-mt-48"></span>
       <div class="mb-5 flex items-center justify-between gap-3">
         <div>
           <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-500">Applicants</p>

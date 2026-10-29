@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SupabaseService } from './core/services/supabase.service';
 
 const INACTIVITY_TIMEOUT_MS = 20 * 60 * 1000;
@@ -14,12 +15,25 @@ const INACTIVITY_TIMEOUT_MS = 20 * 60 * 1000;
 export class AppComponent {
   protected readonly supabase = inject(SupabaseService);
   protected readonly mobileMenuOpen = signal(false);
+  protected readonly navigationLoading = signal(false);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private inactivityTimer: ReturnType<typeof setTimeout> | null = null;
+  private navigationTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly navigationSubscription: Subscription;
   private readonly activityEvents = ['click', 'keydown', 'pointerdown', 'pointermove', 'scroll', 'touchstart', 'touchmove'] as const;
 
   constructor() {
+    this.navigationSubscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.clearNavigationTimer();
+        this.navigationTimer = setTimeout(() => this.navigationLoading.set(true), 120);
+      } else if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
+        this.clearNavigationTimer();
+        this.navigationLoading.set(false);
+      }
+    });
+
     for (const eventName of this.activityEvents) {
       window.addEventListener(eventName, this.onUserActivity, { passive: true });
     }
@@ -31,6 +45,8 @@ export class AppComponent {
         window.removeEventListener(eventName, this.onUserActivity);
       }
       this.clearInactivityTimer();
+      this.clearNavigationTimer();
+      this.navigationSubscription.unsubscribe();
     });
   }
 
@@ -47,6 +63,13 @@ export class AppComponent {
     if (this.inactivityTimer !== null) {
       clearTimeout(this.inactivityTimer);
       this.inactivityTimer = null;
+    }
+  }
+
+  private clearNavigationTimer() {
+    if (this.navigationTimer !== null) {
+      clearTimeout(this.navigationTimer);
+      this.navigationTimer = null;
     }
   }
 
@@ -75,7 +98,8 @@ export class AppComponent {
   }
 
   protected isDashboardPage() {
-    return this.router.url.startsWith('/admin') || this.router.url.startsWith('/unit-admin');
+    return ['/admin', '/unit-admin', '/profile', '/trust', '/messages']
+      .some((route) => this.router.url.startsWith(route));
   }
 
   protected async signOut() {
